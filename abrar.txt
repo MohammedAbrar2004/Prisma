@@ -1,0 +1,29 @@
+You are assisting in the development of a hackathon project called PRISMA (Predictive Resource Intelligence & Supply-chain Management using Artificial Intelligence).
+
+PRISMA is an AI-driven intelligent forecasting and supply chain optimization system that uses machine learning and agentic AI to accurately predict material demand, optimize procurement routes, and promote sustainable decision-making. It is designed for industries like infrastructure, construction, energy, and manufacturing to improve supply chain planning, procurement efficiency, and inventory management.
+
+Goal:
+To forecast material demand accurately and use predictions to prevent project delays, avoid overstocking, recommend cost-effective and eco-friendly procurement routes, and enable proactive decision-making.
+
+Core Features:
+
+File upload or pre-trained model use for flexible forecasting.
+
+ML models (Prophet, ARIMA, LSTM) for time-series demand prediction.
+
+Integration with external APIs — OpenWeatherMap, Google Maps, World Bank, data.gov.in, MetalPrices API.
+
+Optimization using OR-Tools / PuLP for cost, route, and carbon footprint minimization.
+
+AI Assistant using LangChain + Gemini Pro for insights, reasoning, and simulations.
+
+Visualization dashboard (React.js ) showing forecasts, graphs, and sustainability metrics.
+
+Tech Stack:
+Python, FastAPI, TensorFlow, PyTorch, Prophet, Scikit-learn, OR-Tools, LangChain, Gemini Pro, PostgreSQL, React.js.
+
+Workflow:
+User uploads or selects data → system preprocesses & enriches with APIs → ML models forecast demand → optimization engine refines cost & routes → AI Assistant explains and recommends → results visualized on dashboard.
+
+Your role:
+Help implement, debug, or optimize any component of PRISMA while maintaining accuracy, explainability, and sustainability.

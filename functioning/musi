@@ -1,0 +1,285 @@
+PRISMA – Predictive Resource Intelligence & Supply-chain Management using AI
+
+PRISMA is an intelligent decision-support platform that helps organizations forecast material demand, analyze external risk signals, and generate smart, explainable procurement recommendations using a hybrid of:
+
+- Traditional ML forecasting,
+- External data & web intelligence,
+- Local LLM reasoning (via Ollama).
+
+This repository contains the MVP implementation designed for a hackathon prototype with a clear path to production.
+
+---
+
+1. Problem Overview
+
+Large-scale, project-based organizations (infrastructure, power, construction, manufacturing) struggle with:
+
+- Uncertain and dynamic material demand.
+- Fragmented data across departments (requirements, inventory, procurement).
+- Volatile external factors:
+  - Commodity prices,
+  - Weather & seasonal constraints,
+  - Regional infra activity,
+  - Logistics disruptions.
+
+Traditional ERP and rule-based forecasting tools:
+
+- Rely heavily on historical averages,
+- Don’t adapt quickly to external signals,
+- Offer limited transparency into why a recommendation is made.
+
+Result:
+
+- Shortages → delayed projects,
+- Overstocking → blocked capital & storage costs,
+- Reactive decision-making instead of proactive planning.
+
+PRISMA aims to fix that.
+
+---
+
+2. Core Idea
+
+Separate the brains cleanly:
+
+1. Data & Forecast Engine (Numbers)
+   - Parse company requirements from CSV/Excel.
+   - Run forecasting logic (dummy now, ML later).
+   - Output structured JSON.
+
+2. External Signals Engine (World Context)
+   - Collect or simulate:
+     - Price trends,
+     - Infra/tender activity,
+     - Weather/season tags,
+     - Logistics difficulty signals.
+   - Normalize into demand risk “signals” per material & region.
+
+3. LLM Reasoning Layer (Understanding & Explanation)
+   - Use a local LLM (e.g., llama3 via Ollama).
+   - Feed it:
+     - Requirements JSON,
+     - Forecasts JSON,
+     - Signals JSON.
+   - It does:
+     - Explanation,
+     - Trade-off reasoning,
+     - Recommended orders,
+     - Risk assessment,
+     - Outputs in structured JSON + human-readable summary.
+
+4. Frontend Dashboard
+   - Visualizes:
+     - Forecasted demand,
+     - Recommendations,
+     - Risks & signals,
+     - “Why” behind suggestions.
+
+This architecture lets us:
+
+- Build a fully working demo with dummy data now.
+- Later plug in real ML models and real external sources without changing APIs or prompts.
+
+---
+
+3. High-Level Architecture
+
+Flow:
+
+1. Upload Requirements
+   - User uploads requirements (CSV/Excel) or uses sample data.
+   - Backend parses into a normalized format:
+
+   {
+     "company": "ABC Infra",
+     "projects": [
+       {
+         "id": "PWR-1",
+         "location": "Maharashtra",
+         "materials": [
+           { "name": "Concrete", "current_month_usage": 500 },
+           { "name": "Steel", "current_month_usage": 200 }
+         ]
+       }
+     ]
+   }
+
+Forecast Engine (MVP)
+
+For now: simple rule-based logic, e.g.:
+
+next_month = current_usage * 1.10
+
+Output:
+
+{
+  "company_id": "abc-infra",
+  "forecasts": [
+    {
+      "project_id": "PWR-1",
+      "material": "Concrete",
+      "month": "2025-02",
+      "predicted_demand": 550
+    },
+    {
+      "project_id": "PWR-1",
+      "material": "Steel",
+      "month": "2025-02",
+      "predicted_demand": 220
+    }
+  ]
+}
+
+External Signals Engine (MVP + Pluggable)
+
+Central place that:
+
+- Reads from dummy JSON now,
+- Later connects to:
+  - OpenWeatherMap,
+  - Commodity price APIs,
+  - Government infra/tender data,
+  - Routing APIs.
+
+Produces clean signals:
+
+{
+  "company_id": "abc-infra",
+  "signals": [
+    {
+      "region": "Maharashtra",
+      "material": "Steel",
+      "demand_direction": "increase",
+      "demand_score": 0.82,
+      "drivers": [
+        "Steel price up 9% in last 30 days",
+        "Multiple infra tenders in region"
+      ]
+    }
+  ]
+}
+
+LLM Reasoning Layer (Ollama Integration)
+
+LLM = llama3 (via ollama).
+
+It is not responsible for scraping or forecasting.
+
+It only:
+
+- Reads the structured JSON,
+- Explains,
+- Recommends.
+
+System Prompt Concept (simplified):
+
+You are PRISMA, an AI assistant for material planning.
+
+Use ONLY the provided data: requirements, forecasts, and external signals.
+
+Do not fabricate prices or quantities.
+
+If data is missing, say it.
+
+Output:
+
+- A human-readable summary.
+- A JSON object with recommended_orders and risks.
+
+The backend:
+
+- Calls Ollama POST /api/generate,
+- Passes merged JSON + instructions,
+- Returns:
+
+{
+  "summary": "Steel demand is high risk in Maharashtra...",
+  "recommended_orders": [
+    {
+      "material": "Steel",
+      "quantity": 250,
+      "basis": "Forecast 220 + high risk signals"
+    }
+  ],
+  "risks": [
+    {
+      "material": "Steel",
+      "level": "high",
+      "drivers": ["Price up 9%", "New tenders"]
+    }
+  ]
+}
+
+UI / Dashboard
+
+Shows:
+
+- Summary text from LLM,
+- Recommended order table,
+- Risk cards/charts,
+- Signals per region.
+
+4. Current Implementation Status (MVP)
+
+For hackathon phase:
+
+- Architecture defined (modular, pluggable).
+- Dummy data models for:
+  - Requirements,
+  - Forecasts,
+  - Signals.
+- Design for Ollama-based LLM integration.
+- Implement External Signals Engine (with mock + future real APIs).
+- Implement LLM wrapper using llama3 via Ollama.
+- Hook into frontend dashboard (file upload → analysis → insights).
+
+5. Next Steps: LLM Integration Plan
+
+Add a llm/ module that:
+
+def analyze_prisma(requirements, forecasts, signals) -> dict:
+    # builds prompt
+    # calls local Ollama (llama3)
+    # parses JSON response
+
+Use llama3 as the single reasoning engine:
+
+- All routes (/analyze, /ask) call this function.
+
+Ensure:
+
+- Strict JSON format in responses,
+- No hallucinated numbers,
+- Clear, explainable output.
+
+Later:
+
+- Swap llama3 model version if needed.
+- Extend with RAG (retrieve historical decisions, docs, etc.).
+- Add multi-agent behavior if scope grows.
+
+6. Tech Stack (Planned)
+
+- Backend: Python, FastAPI
+- LLM Runtime: Ollama (llama3 locally)
+- Data Processing: Pandas / custom parsing
+- External Signals: HTTP clients to APIs + scraping (where allowed)
+- DB (optional for MVP): SQLite / PostgreSQL
+- Frontend: React / Next.js or simple dashboard (can start with minimal UI)
+
+7. Philosophy
+
+PRISMA is not “just a chatbot” or “just a forecaster”.
+
+It is:
+
+- A signal orchestrator (collects structured context),
+- A reasoning engine (LLM on top of verified data),
+- A decision co-pilot for supply-chain teams.
+
+The design is intentionally:
+
+- Modular (swap components easily),
+- Testable (every layer can run with dummy data),
+- Ready to scale into production.
+

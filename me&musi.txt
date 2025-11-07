@@ -1,8 +1,24 @@
-Our responsibility according to chatgpt:
+Our 3 main responsibilities acc to chatgpt:
 
+1. AI Assistant (LLM)
 
-->Turn raw predictions into decisions.
+Build the chatbot/assistant part using LangChain + Gemini (or GPT).
+It reads the forecast results and answers questions like:
+“What should I order next month?”
+“What if the project is delayed by 2 weeks?”
+It explains things in plain language and gives reasoning
 
-->Pull real-world context (weather, prices, maps) into the pipeline.
+2. API Integrations
 
-->Expose a single /insight and /simulate API that the frontend can hit for ready-to-display text + numbers + charts.
+Connect external APIs (like weather, material prices, maps).
+These give extra context to improve predictions or insights.
+Example:
+Weather API → helps predict delivery delays.
+Metal price API → adjusts cost recommendations.
+
+3. Connecting Everything
+
+You’ll create or help define backend routes (like /insight, /simulate)
+— where the frontend asks for AI explanations.
+You’ll fetch ML predictions from the ML team’s endpoint (like /predict),
+then combine them with API data and feed them into the AI assistant.

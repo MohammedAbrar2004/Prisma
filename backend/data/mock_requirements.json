@@ -1,0 +1,80 @@
+{
+  "company": "ABC Infrastructure Ltd",
+  "company_id": "abc-infra",
+  "upload_date": "2025-11-07",
+  "projects": [
+    {
+      "id": "PWR-1",
+      "name": "Maharashtra Power Plant Phase 2",
+      "location": "Maharashtra",
+      "status": "active",
+      "materials": [
+        {
+          "name": "Steel",
+          "category": "Metals",
+          "current_month_usage": 500,
+          "unit": "tons"
+        },
+        {
+          "name": "Concrete",
+          "category": "Construction Materials",
+          "current_month_usage": 800,
+          "unit": "cubic meters"
+        },
+        {
+          "name": "Copper",
+          "category": "Metals",
+          "current_month_usage": 120,
+          "unit": "tons"
+        }
+      ]
+    },
+    {
+      "id": "HWY-3",
+      "name": "Gujarat Highway Expansion",
+      "location": "Gujarat",
+      "status": "active",
+      "materials": [
+        {
+          "name": "Concrete",
+          "category": "Construction Materials",
+          "current_month_usage": 1200,
+          "unit": "cubic meters"
+        },
+        {
+          "name": "Steel",
+          "category": "Metals",
+          "current_month_usage": 300,
+          "unit": "tons"
+        },
+        {
+          "name": "Asphalt",
+          "category": "Road Materials",
+          "current_month_usage": 450,
+          "unit": "tons"
+        }
+      ]
+    },
+    {
+      "id": "BRG-5",
+      "name": "Karnataka Bridge Construction",
+      "location": "Karnataka",
+      "status": "planning",
+      "materials": [
+        {
+          "name": "Steel",
+          "category": "Metals",
+          "current_month_usage": 650,
+          "unit": "tons"
+        },
+        {
+          "name": "Concrete",
+          "category": "Construction Materials",
+          "current_month_usage": 900,
+          "unit": "cubic meters"
+        }
+      ]
+    }
+  ]
+}
+

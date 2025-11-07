@@ -56,7 +56,13 @@ class DemandSignal:
     def to_dict(self):
         """Convert to JSON-serializable dict"""
         data = asdict(self)
-        data['last_updated'] = self.last_updated.isoformat()
+        # Handle last_updated - it might already be a string or a datetime
+        if isinstance(self.last_updated, datetime):
+            data['last_updated'] = self.last_updated.isoformat()
+        elif isinstance(self.last_updated, str):
+            data['last_updated'] = self.last_updated
+        else:
+            data['last_updated'] = datetime.now().isoformat()
         return data
 
 
@@ -393,34 +399,45 @@ def fetch_weather_signals(
                 if max_temp > 42 or max_temp < 5:
                     extreme_temp_days += 1
             
-            # Generate signal if significant weather risk
-            if heavy_rain_days > 3 or extreme_temp_days > 2 or len(alerts) > 0:
-                drivers = []
-                
-                if heavy_rain_days > 0:
-                    drivers.append(f"Heavy rainfall expected {heavy_rain_days} days in next 2 weeks")
-                
-                if extreme_temp_days > 0:
-                    drivers.append(f"Extreme temperatures forecast for {extreme_temp_days} days")
-                
-                if alerts:
-                    drivers.append(f"{len(alerts)} weather alert(s) active in region")
-                
-                # Weather can both increase (pre-stocking) or decrease (delays) demand
-                direction = DemandDirection.INCREASE.value if heavy_rain_days > 4 else DemandDirection.STABLE.value
-                score = min(0.4 + (heavy_rain_days * 0.1) + (extreme_temp_days * 0.08), 0.9)
-                
-                return DemandSignal(
-                    company_id="",  # Set by caller
-                    region=region,
-                    material="General",
-                    material_category="Weather Impact",
-                    demand_direction=direction,
-                    demand_score=score,
-                    confidence=0.75,
-                    drivers=drivers,
-                    last_updated=datetime.now()
-                )
+            # Always generate a weather signal (even if stable)
+            drivers = []
+
+            if heavy_rain_days > 0:
+                drivers.append(f"Heavy rainfall expected {heavy_rain_days} days in next 2 weeks")
+
+            if extreme_temp_days > 0:
+                drivers.append(f"Extreme temperatures forecast for {extreme_temp_days} days")
+
+            if alerts:
+                drivers.append(f"{len(alerts)} weather alert(s) active in region")
+
+            # If no significant weather, add normal conditions
+            if not drivers:
+                drivers.append(f"Normal weather conditions forecast for next 14 days")
+                drivers.append(f"No significant weather disruptions expected")
+
+            # Determine direction and score based on weather severity
+            if heavy_rain_days > 4:
+                direction = DemandDirection.INCREASE.value
+                score = min(0.6 + (heavy_rain_days * 0.1), 0.9)
+            elif heavy_rain_days > 2 or extreme_temp_days > 2:
+                direction = DemandDirection.INCREASE.value
+                score = min(0.5 + (heavy_rain_days * 0.08) + (extreme_temp_days * 0.06), 0.8)
+            else:
+                direction = DemandDirection.STABLE.value
+                score = 0.3 + (heavy_rain_days * 0.05) + (extreme_temp_days * 0.03)
+
+            return DemandSignal(
+                company_id="",  # Set by caller
+                region=region,
+                material="General",
+                material_category="Weather Impact",
+                demand_direction=direction,
+                demand_score=score,
+                confidence=0.75,
+                drivers=drivers,
+                last_updated=datetime.now()
+            )
     
     except Exception as e:
         print(f"WeatherAPI error for {region}: {e}")
@@ -566,14 +583,18 @@ def build_signals(
     
     all_signals = []
     data_sources = ["mock"]
-    
+
     # Always start with mock signals (baseline)
+    # Note: get_mock_signals returns DemandSignal objects already converted to dicts
+    # We need to reconstruct them, but skip the last_updated field since it's already a string
     mock_data = get_mock_signals(company_id)
-    all_signals.extend([
-        DemandSignal(**{**s, 'company_id': company_id}) 
-        for s in mock_data["signals"]
-        if not region or s.get("region") == region
-    ])
+    for s in mock_data["signals"]:
+        if not region or s.get("region") == region:
+            # Create a copy without last_updated, then add it back as datetime
+            signal_dict = {k: v for k, v in s.items() if k != 'last_updated'}
+            signal_dict['company_id'] = company_id
+            signal_dict['last_updated'] = datetime.now()  # Use current time
+            all_signals.append(DemandSignal(**signal_dict))
     
     # If real APIs enabled and configured, fetch additional signals
     if use_real_apis:
@@ -594,12 +615,15 @@ def build_signals(
         
         # Fetch weather signals
         if region:
+            print(f"DEBUG: Fetching weather signals for region: {region}")
             weather_signal = fetch_weather_signals(region)
+            print(f"DEBUG: Weather signal result: {weather_signal}")
             if weather_signal:
                 weather_signal.company_id = company_id
                 weather_signal.horizon = horizon
                 all_signals.append(weather_signal)
                 data_sources.append("weather_api")
+                print(f"DEBUG: Weather signal added to all_signals")
         
         # Fetch infrastructure activity signals
         if region:

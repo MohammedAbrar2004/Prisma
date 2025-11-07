@@ -1,0 +1,23 @@
+# Web Enrichment Module Dependencies
+
+# Core dependencies (already in main requirements.txt)
+# requests>=2.31.0
+# beautifulsoup4>=4.12.0
+# pydantic>=2.5.0
+
+# HTML parsing
+beautifulsoup4==4.12.2
+lxml==4.9.3  # Fast HTML parser for BeautifulSoup
+
+# HTTP requests
+requests==2.31.0
+httpx==0.25.1  # For async requests (future enhancement)
+
+# Optional: Redis for distributed caching
+# redis==5.0.1
+# hiredis==2.2.3  # C parser for Redis (performance)
+
+# Optional: Advanced scraping
+# selenium==4.15.2  # For JavaScript-heavy sites
+# playwright==1.40.0  # Modern browser automation
+

@@ -20,6 +20,7 @@ load_dotenv()
 
 # Import routers
 from routes.signals import router as signals_router
+from routes.enrichment import router as enrichment_router
 
 # ============================================================================
 # App Initialization
@@ -79,6 +80,7 @@ app.add_middleware(
 # ============================================================================
 
 app.include_router(signals_router)
+app.include_router(enrichment_router)
 
 # ============================================================================
 # Root Endpoints

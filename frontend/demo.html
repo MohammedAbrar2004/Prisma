@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRISMA - Demand Signals Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .controls input, .controls select {
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .controls button {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .controls button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .controls button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .info-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .info-panel h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .info-item {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-item label {
+            font-size: 0.85em;
+            color: #666;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .info-item value {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .signals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .signal-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-top: 5px solid #667eea;
+        }
+
+        .signal-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .signal-card.weather {
+            border-top-color: #4CAF50;
+        }
+
+        .signal-card.mock {
+            border-top-color: #FF9800;
+        }
+
+        .signal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .signal-material {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .signal-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .badge-weather {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .badge-mock {
+            background: #FF9800;
+            color: white;
+        }
+
+        .signal-region {
+            color: #666;
+            font-size: 0.95em;
+            margin-bottom: 15px;
+        }
+
+        .signal-direction {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .direction-increase {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .direction-decrease {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .direction-stable {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .signal-scores {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .score-item {
+            flex: 1;
+        }
+
+        .score-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .score-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s ease;
+        }
+
+        .score-value {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #333;
+            margin-top: 5px;
+        }
+
+        .signal-drivers {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .signal-drivers h4 {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .driver-item {
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            color: #333;
+            border-left: 3px solid #667eea;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .empty-state h3 {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌐 PRISMA Demand Signals</h1>
+            <p>Predictive Resource Intelligence & Supply-chain Management using AI</p>
+        </div>
+
+        <div class="controls">
+            <input type="text" id="companyId" placeholder="Company ID" value="test-company">
+            <input type="text" id="region" placeholder="Region (optional, e.g., Maharashtra)">
+            <select id="useRealApis">
+                <option value="true">Use Real APIs (WeatherAPI)</option>
+                <option value="false">Mock Data Only</option>
+            </select>
+            <button id="fetchBtn" onclick="fetchSignals()">🔍 Fetch Signals</button>
+        </div>
+
+        <div id="content"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8000';
+
+        async function fetchSignals() {
+            const companyId = document.getElementById('companyId').value || 'test-company';
+            const region = document.getElementById('region').value;
+            const useRealApis = document.getElementById('useRealApis').value;
+            const fetchBtn = document.getElementById('fetchBtn');
+            const content = document.getElementById('content');
+
+            // Show loading
+            fetchBtn.disabled = true;
+            content.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Fetching demand signals...</p>
+                </div>
+            `;
+
+            try {
+                // Build URL with query parameters
+                let url = `${API_BASE_URL}/signals/${companyId}?use_real_apis=${useRealApis}`;
+                if (region) {
+                    url += `&region=${encodeURIComponent(region)}`;
+                }
+
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                displaySignals(data);
+
+            } catch (error) {
+                content.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Error</h3>
+                        <p>${error.message}</p>
+                        <p style="margin-top: 10px; font-size: 0.9em;">Make sure the backend server is running on port 8000</p>
+                    </div>
+                `;
+            } finally {
+                fetchBtn.disabled = false;
+            }
+        }
+
+        function displaySignals(data) {
+            const content = document.getElementById('content');
+            
+            if (!data.signals || data.signals.length === 0) {
+                content.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No signals found</h3>
+                        <p>Try adjusting your filters or check the backend logs</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Separate weather signals from others
+            const weatherSignals = data.signals.filter(s => 
+                s.material_category === 'Weather Impact' || 
+                s.drivers?.some(d => d.toLowerCase().includes('weather'))
+            );
+            const otherSignals = data.signals.filter(s => 
+                s.material_category !== 'Weather Impact' && 
+                !s.drivers?.some(d => d.toLowerCase().includes('weather'))
+            );
+
+            let html = `
+                <div class="info-panel">
+                    <h3>📊 Summary</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Company ID</label>
+                            <value>${data.company_id}</value>
+                        </div>
+                        <div class="info-item">
+                            <label>Total Signals</label>
+                            <value>${data.signals.length}</value>
+                        </div>
+                        <div class="info-item">
+                            <label>Weather Signals</label>
+                            <value>${weatherSignals.length}</value>
+                        </div>
+                        <div class="info-item">
+                            <label>Data Sources</label>
+                            <value>${data.data_sources?.join(', ') || 'N/A'}</value>
+                        </div>
+                        <div class="info-item">
+                            <label>Generated At</label>
+                            <value>${new Date(data.generated_at).toLocaleString()}</value>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Weather signals section
+            if (weatherSignals.length > 0) {
+                html += `<h2 style="color: white; margin: 30px 0 20px 0; font-size: 1.8em;">🌤️ Weather-Based Signals (Real WeatherAPI)</h2>`;
+                html += '<div class="signals-grid">';
+                weatherSignals.forEach(signal => {
+                    html += createSignalCard(signal, true);
+                });
+                html += '</div>';
+            }
+
+            // Other signals section
+            if (otherSignals.length > 0) {
+                html += `<h2 style="color: white; margin: 30px 0 20px 0; font-size: 1.8em;">📦 Other Signals</h2>`;
+                html += '<div class="signals-grid">';
+                otherSignals.forEach(signal => {
+                    html += createSignalCard(signal, false);
+                });
+                html += '</div>';
+            }
+
+            content.innerHTML = html;
+        }
+
+        function createSignalCard(signal, isWeather) {
+            const directionClass = `direction-${signal.demand_direction}`;
+            const badgeClass = isWeather ? 'badge-weather' : 'badge-mock';
+            const cardClass = isWeather ? 'weather' : 'mock';
+            
+            return `
+                <div class="signal-card ${cardClass}">
+                    <div class="signal-header">
+                        <div class="signal-material">${signal.material}</div>
+                        <div class="signal-badge ${badgeClass}">
+                            ${isWeather ? '🌤️ Weather' : '📊 Data'}
+                        </div>
+                    </div>
+                    
+                    <div class="signal-region">📍 ${signal.region}</div>
+                    
+                    <div class="signal-direction ${directionClass}">
+                        ${signal.demand_direction === 'increase' ? '📈' : signal.demand_direction === 'decrease' ? '📉' : '➡️'}
+                        ${signal.demand_direction.toUpperCase()}
+                    </div>
+                    
+                    <div class="signal-scores">
+                        <div class="score-item">
+                            <div class="score-label">Demand Score</div>
+                            <div class="score-bar">
+                                <div class="score-fill" style="width: ${signal.demand_score * 100}%"></div>
+                            </div>
+                            <div class="score-value">${(signal.demand_score * 100).toFixed(0)}%</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-label">Confidence</div>
+                            <div class="score-bar">
+                                <div class="score-fill" style="width: ${signal.confidence * 100}%"></div>
+                            </div>
+                            <div class="score-value">${(signal.confidence * 100).toFixed(0)}%</div>
+                        </div>
+                    </div>
+                    
+                    ${signal.drivers && signal.drivers.length > 0 ? `
+                        <div class="signal-drivers">
+                            <h4>Key Drivers</h4>
+                            ${signal.drivers.map(driver => `
+                                <div class="driver-item">💡 ${driver}</div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        // Auto-fetch on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchSignals();
+        });
+    </script>
+</body>
+</html>
+

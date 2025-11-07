@@ -30,7 +30,18 @@ import {
   Home,
   Activity,
   DollarSign,
-  Percent
+  Percent,
+  X,
+  Maximize2,
+  Minimize2,
+  Eye,
+  Settings,
+  Layers,
+  Target,
+  Info,
+  ChevronUp,
+  PanelLeftClose,
+  PanelLeftOpen
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/sonner";

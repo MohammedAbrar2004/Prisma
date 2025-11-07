@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
+import Home from "./pages/Home";
 import DataUpload from "./pages/DataUpload";
 import Forecast from "./pages/Forecast";
 import Procurement from "./pages/Procurement";
@@ -14,6 +14,7 @@ import Reports from "./pages/Reports";
 import AIAssistant from "./pages/AIAssistant";
 import DashboardLayout from "./components/DashboardLayout";
 import NotFound from "./pages/NotFound";
+import AnimatedBackground from "./components/AnimatedBackground";
 
 const queryClient = new QueryClient();
 
@@ -21,13 +22,15 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
       <TooltipProvider>
+        {/* Animated gradient background - applied globally */}
+        <AnimatedBackground />
         <Toaster />
         <Sonner />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/dashboard" element={<DashboardLayout><Dashboard /></DashboardLayout>} />
+            <Route path="/home" element={<DashboardLayout><Home /></DashboardLayout>} />
             <Route path="/upload" element={<DashboardLayout><DataUpload /></DashboardLayout>} />
             <Route path="/forecast" element={<DashboardLayout><Forecast /></DashboardLayout>} />
             <Route path="/procurement" element={<DashboardLayout><Procurement /></DashboardLayout>} />

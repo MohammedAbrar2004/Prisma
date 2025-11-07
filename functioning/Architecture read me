@@ -1,0 +1,158 @@
+PRISMA Architecture – Context for Implementation
+
+This document explains how PRISMA is structured so that contributors (and AI tools) generate code aligned with the intended design.
+
+---
+
+1. High-Level Flow
+
+End-to-end flow:
+
+1. Input
+   - Company uploads requirements (CSV/Excel) OR uses sample data.
+
+2. Forecast Engine
+   - Takes normalized requirements.
+   - For MVP: uses rule-based logic (e.g., +10% growth).
+   - Later: replaced by real time-series ML models.
+   - Outputs: forecasts.json (per project, per material).
+
+3. External Signals Engine
+   - Uses mock data initially.
+   - Later fetches:
+     - Commodity prices,
+     - Infra/tender activity,
+     - Weather/season,
+     - Logistics difficulty.
+   - Outputs: signals.json – demand risk indicators per material/region.
+
+4. LLM Reasoning Layer (Ollama + Llama3)
+   - Inputs:
+     - requirements.json
+     - forecasts.json
+     - signals.json
+   - Task:
+     - Explain risks & demand.
+     - Recommend order quantities.
+     - Provide machine-readable JSON for UI.
+   - Runs locally via Ollama.
+
+5. API Gateway (FastAPI)
+   - Exposes:
+     - /upload-requirements
+     - /forecasts/{company_id}
+     - /signals/{company_id}
+     - /analyze → calls LLM layer.
+
+6. UI / Dashboard
+   - Calls backend APIs.
+   - Displays:
+     - Forecasts,
+     - External signals,
+     - Recommended orders,
+     - Explanations.
+
+---
+
+2. Architecture Diagram (Text)
+
+```
++--------------------+         +-------------------------+
+|   Frontend UI      | <-----> |      FastAPI Backend    |
+|  (Dashboard)       |         |  (REST API Layer)       |
++--------------------+         +-----------+-------------+
+                                          |
+                                          v
+                            +-------------+--------------+
+                            |     Requirements Parser    |
+                            |  (CSV/Excel -> JSON)       |
+                            +-------------+--------------+
+                                          |
+                                          v
+                            +-------------+--------------+
+                            |      Forecast Engine       |
+                            | (Rule-based / ML later)    |
+                            +-------------+--------------+
+                                          |
+                                          v
+                            +-------------+--------------+
+                            |  External Signals Engine   |
+                            | (Mock now, APIs later)     |
+                            +-------------+--------------+
+                                          |
+                        requirements + forecasts + signals
+                                          |
+                                          v
+                            +-------------+--------------+
+                            |   LLM Reasoning Layer      |
+                            | (Ollama - llama3 local)    |
+                            | - Reads JSON context       |
+                            | - No scraping/ML here      |
+                            +-------------+--------------+
+                                          |
+                                          v
+                            +-------------+--------------+
+                            |  API Response (JSON)       |
+                            |  - summary                 |
+                            |  - recommended_orders      |
+                            |  - risks                   |
+                            +-------------+--------------+
+                                          |
+                                          v
+                            +-------------+--------------+
+                            |  Frontend Visualization    |
+                            +----------------------------+
+```
+
+---
+
+3. Key Design Principles
+
+Separation of Concerns
+
+- Forecasting ≠ LLM.
+- Signals ≠ scraping inside LLM.
+- LLM only reasons on structured, trusted inputs.
+
+Mock First, Replace Later
+
+- All integrations (ML, APIs, scrapers) are behind functions/modules.
+- For hackathon: Use deterministic mock data.
+- For production: Plug in real logic without changing the contract.
+
+LLM as Reasoning Layer
+
+- LLM never guesses raw numbers.
+- It explains, prioritizes, suggests, outputs structured JSON.
+
+Testable & Observable
+
+- Each layer can be unit-tested with static inputs.
+- End-to-end flow: upload → forecast → signals → analyze → recommendations.
+
+---
+
+4. Implementation Modules (Suggested Layout)
+
+```
+backend/
+  main.py                # FastAPI app, mounts routers
+  routes/
+    requirements.py      # /upload-requirements
+    forecasts.py         # /forecasts/{company_id}
+    signals.py           # /signals/{company_id}
+    analyze.py           # /analyze
+  external_signals/
+    engine.py            # DemandSignal models + build_signals()
+  forecast/
+    engine.py            # Dummy/ML forecast logic
+  llm/
+    engine.py            # Ollama (llama3) integration, analyze_prisma()
+  models/
+    schemas.py           # Shared Pydantic models (if used)
+  data/
+    mock_requirements.json
+    mock_forecasts.json
+    mock_signals.json
+```
+

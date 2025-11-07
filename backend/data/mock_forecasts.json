@@ -1,0 +1,82 @@
+{
+  "company_id": "abc-infra",
+  "forecast_date": "2025-11-07",
+  "horizon": "next_month",
+  "method": "rule_based_mvp",
+  "forecasts": [
+    {
+      "project_id": "PWR-1",
+      "material": "Steel",
+      "current_usage": 500,
+      "predicted_demand": 550,
+      "unit": "tons",
+      "confidence": 0.75,
+      "month": "2025-12"
+    },
+    {
+      "project_id": "PWR-1",
+      "material": "Concrete",
+      "current_usage": 800,
+      "predicted_demand": 880,
+      "unit": "cubic meters",
+      "confidence": 0.78,
+      "month": "2025-12"
+    },
+    {
+      "project_id": "PWR-1",
+      "material": "Copper",
+      "current_usage": 120,
+      "predicted_demand": 132,
+      "unit": "tons",
+      "confidence": 0.72,
+      "month": "2025-12"
+    },
+    {
+      "project_id": "HWY-3",
+      "material": "Concrete",
+      "current_usage": 1200,
+      "predicted_demand": 1320,
+      "unit": "cubic meters",
+      "confidence": 0.80,
+      "month": "2025-12"
+    },
+    {
+      "project_id": "HWY-3",
+      "material": "Steel",
+      "current_usage": 300,
+      "predicted_demand": 330,
+      "unit": "tons",
+      "confidence": 0.76,
+      "month": "2025-12"
+    },
+    {
+      "project_id": "HWY-3",
+      "material": "Asphalt",
+      "current_usage": 450,
+      "predicted_demand": 495,
+      "unit": "tons",
+      "confidence": 0.82,
+      "month": "2025-12"
+    },
+    {
+      "project_id": "BRG-5",
+      "material": "Steel",
+      "current_usage": 650,
+      "predicted_demand": 715,
+      "unit": "tons",
+      "confidence": 0.68,
+      "month": "2025-12"
+    },
+    {
+      "project_id": "BRG-5",
+      "material": "Concrete",
+      "current_usage": 900,
+      "predicted_demand": 990,
+      "unit": "cubic meters",
+      "confidence": 0.70,
+      "month": "2025-12"
+    }
+  ],
+  "notes": "MVP phase: Simple 10% growth rule applied. ML models to be integrated in production."
+}
+

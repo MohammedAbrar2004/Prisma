@@ -1,0 +1,8 @@
+Our responsibility according to chatgpt:
+
+
+->Turn raw predictions into decisions.
+
+->Pull real-world context (weather, prices, maps) into the pipeline.
+
+->Expose a single /insight and /simulate API that the frontend can hit for ready-to-display text + numbers + charts.

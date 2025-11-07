@@ -31,8 +31,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   return (
     <div className="min-h-screen flex w-full">
-      {/* Sidebar with Glass Effect */}
-      <aside className="w-64 bg-silver-gradient dark:bg-silver-gradient-dark border-r border-border/50 flex flex-col backdrop-blur-sm">
+      {/* Sidebar with Glass Effect - Fixed Position */}
+      <aside className="fixed left-0 top-0 h-screen w-64 bg-silver-gradient dark:bg-silver-gradient-dark border-r border-border/50 flex flex-col backdrop-blur-sm z-40">
         <div className="p-6 border-b border-border/50">
           <div className="flex flex-col items-center space-y-3">
             <div className="relative">
@@ -54,7 +54,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </div>
           </div>
         </div>
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {navigation.map((item) => (
             <NavLink
               key={item.name}
@@ -70,13 +70,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </nav>
       </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      {/* Main Content - With left margin to account for fixed sidebar */}
+      <div className="flex-1 flex flex-col ml-64">
         {/* Header with Glass Effect */}
-        <header className="glass border-b border-border/50 px-6 py-4">
+        <header className="glass border-b border-border/50 px-6 py-4 sticky top-0 z-30">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-foreground">Welcome back, Riya</h2>
               <p className="text-sm text-muted-foreground">PowerGrid Infrastructure Pvt. Ltd.</p>
             </div>
             <button

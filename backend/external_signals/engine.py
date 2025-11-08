@@ -69,7 +69,11 @@ class DemandSignal:
     def to_dict(self):
         """Convert to JSON-serializable dict"""
         data = asdict(self)
-        data['last_updated'] = self.last_updated.isoformat()
+        # Handle last_updated - might be datetime or already a string
+        if isinstance(self.last_updated, datetime):
+            data['last_updated'] = self.last_updated.isoformat()
+        else:
+            data['last_updated'] = str(self.last_updated)
         return data
 
 
@@ -638,8 +642,15 @@ def build_signals(
                 # Convert industry signals to DemandSignal format
                 for signal_dict in industry_data.get("signals", []):
                     try:
-                        # Remove last_updated if it's a string (DemandSignal will set it)
-                        signal_dict_clean = {k: v for k, v in signal_dict.items() if k != "last_updated"}
+                        # Clean signal dict - remove fields that DemandSignal will set
+                        signal_dict_clean = {}
+                        for k, v in signal_dict.items():
+                            if k == "last_updated":
+                                continue  # Skip - DemandSignal sets this automatically
+                            if k == "source":
+                                continue  # Not part of DemandSignal model
+                            signal_dict_clean[k] = v
+                        
                         industry_signal = DemandSignal(**signal_dict_clean)
                         industry_signal.horizon = horizon
                         all_signals.append(industry_signal)

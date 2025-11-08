@@ -71,7 +71,7 @@ class DemandSignal:
         data = asdict(self)
         # Handle last_updated - might be datetime or already a string
         if isinstance(self.last_updated, datetime):
-            data['last_updated'] = self.last_updated.isoformat()
+        data['last_updated'] = self.last_updated.isoformat()
         else:
             data['last_updated'] = str(self.last_updated)
         return data

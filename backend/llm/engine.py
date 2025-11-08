@@ -104,6 +104,7 @@ Your analysis should help procurement managers:
 You MUST respond with ONLY valid JSON in this exact structure:
 
 {
+  "answer": "Direct answer to the question (if question provided, otherwise 'N/A')",
   "summary": "A concise 2-3 sentence summary of the overall procurement situation and key insights",
   "recommended_actions": [
     {
@@ -128,6 +129,8 @@ You MUST respond with ONLY valid JSON in this exact structure:
 }
 
 IMPORTANT:
+- If a question is provided, "answer" field MUST directly answer that question first
+- "answer" should be concise (1-2 sentences) and reference specific data
 - Include AT LEAST one item in recommended_actions
 - Include AT LEAST one item in risks
 - watchlist_materials can be empty if no materials need special monitoring
@@ -139,14 +142,33 @@ IMPORTANT:
     question_section = ""
     if question:
         question_section = f"""
-=== SPECIFIC QUESTION ===
+=== SPECIFIC QUESTION TO ANSWER ===
 {question}
 
-Please address this question in your analysis.
+CRITICAL: You MUST directly answer this question first, before providing general analysis.
+- If asking about company name: Answer with the exact company name from company_profile
+- If asking about specific materials: Reference the exact data from forecasts/signals
+- If asking about risks: List specific risks from the signals data
+- Be precise and direct - answer the question explicitly, then provide supporting analysis
 """
 
-    # Construct final prompt
-    prompt = f"""{system_context}
+    # Construct final prompt - put question BEFORE output schema if provided
+    if question:
+        prompt = f"""{system_context}
+
+{company_section}
+
+{forecasts_section}
+
+{signals_section}
+
+{question_section}
+
+{output_schema}
+
+Now, analyze the above data and DIRECTLY ANSWER THE QUESTION FIRST, then provide your response in the required JSON format:"""
+    else:
+        prompt = f"""{system_context}
 
 {company_section}
 
@@ -155,8 +177,6 @@ Please address this question in your analysis.
 {signals_section}
 
 {output_schema}
-
-{question_section}
 
 Now, analyze the above data and provide your response in the required JSON format:"""
 
@@ -319,6 +339,10 @@ def extract_json_block(raw_response: str) -> Dict[str, Any]:
                 "LLM may not have followed the output schema."
             )
         
+        # Ensure answer field exists if question was provided
+        if 'answer' not in parsed:
+            parsed['answer'] = parsed.get('summary', 'N/A')
+        
         return parsed
     
     except json.JSONDecodeError as e:
@@ -390,6 +414,7 @@ def analyze_prisma(
         result = extract_json_block(raw_response)
         
         # Step 4: Ensure all expected keys exist (with defaults if missing)
+        result.setdefault('answer', 'N/A' if not question else 'Analysis provided')
         result.setdefault('summary', 'Analysis completed')
         result.setdefault('recommended_actions', [])
         result.setdefault('risks', [])

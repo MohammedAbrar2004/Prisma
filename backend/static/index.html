@@ -270,7 +270,8 @@
 
         <div class="section">
             <button onclick="loadDefaults()">📥 Load Default Mock Data</button>
-            <button onclick="askQuestion()" id="askBtn">🚀 Ask Question</button>
+            <button onclick="runAnalysis()" id="analyzeBtn" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">📊 Run Full Analysis</button>
+            <button onclick="askQuestion()" id="askBtn">💬 Ask Question</button>
             <button onclick="clearChat()" style="background: #6c757d;">🗑️ Clear Chat</button>
         </div>
 
@@ -338,7 +339,16 @@
         }
 
         function formatResponse(data) {
-            let html = `<div class="response-summary">${escapeHtml(data.summary || 'Analysis complete')}</div>`;
+            let html = '';
+            
+            // Show direct answer first if question was asked
+            if (data.answer && data.answer !== 'N/A' && data.answer !== 'Analysis provided') {
+                html += `<div class="response-summary" style="background: #e3f2fd; padding: 15px; border-radius: 6px; margin-bottom: 15px; border-left: 4px solid #2196F3;">
+                    <strong>💡 Direct Answer:</strong><br>${escapeHtml(data.answer)}
+                </div>`;
+            }
+            
+            html += `<div class="response-summary">${escapeHtml(data.summary || 'Analysis complete')}</div>`;
             
             if (data.recommended_actions && data.recommended_actions.length > 0) {
                 html += '<div class="response-actions"><strong>📋 Recommended Actions:</strong>';
@@ -371,6 +381,84 @@
             }
             
             return html;
+        }
+
+        async function runAnalysis() {
+            const btn = document.getElementById('analyzeBtn');
+            const responseDiv = document.getElementById('response');
+            
+            const profileText = document.getElementById('profile').value.trim();
+            if (!profileText) {
+                alert('Please provide company profile data (or click "Load Default Mock Data")');
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> Analyzing...';
+            
+            addMessage('system', 'Running full procurement analysis...');
+            const loadingMsg = addMessage('answer', 'Analyzing your data and generating comprehensive recommendations... This may take 30-60 seconds.');
+            
+            try {
+                const profile = JSON.parse(profileText);
+                const forecastText = document.getElementById('forecast').value.trim();
+                const signalsText = document.getElementById('signals').value.trim();
+                
+                const forecast = forecastText ? JSON.parse(forecastText) : {};
+                const signals = signalsText ? JSON.parse(signalsText) : {};
+                
+                // Run analysis without a question
+                const res = await fetch(`${API_URL}/analyze/direct`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        company_profile: profile,
+                        forecasts: forecast,
+                        signals: signals,
+                        question: null
+                    })
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Request failed');
+                
+                // Remove loading message
+                const container = document.getElementById('chatContainer');
+                container.removeChild(container.lastChild);
+                
+                // Format and add analysis
+                const formattedAnswer = formatResponse(data);
+                const answerDiv = document.createElement('div');
+                answerDiv.className = 'chat-message chat-answer';
+                answerDiv.innerHTML = `<strong>PRISMA AI - Full Analysis:</strong><br>${formattedAnswer}`;
+                
+                const dataRefs = [];
+                if (data.data_sources && data.data_sources.length > 0) {
+                    dataRefs.push(`Data sources: ${data.data_sources.join(', ')}`);
+                }
+                if (data.company_id) {
+                    dataRefs.push(`Company: ${data.company_id}`);
+                }
+                if (dataRefs.length > 0) {
+                    answerDiv.innerHTML += `<div class="data-ref">📊 Analysis based on: ${dataRefs.join(' | ')}</div>`;
+                }
+                
+                container.appendChild(answerDiv);
+                container.scrollTop = container.scrollHeight;
+                
+                responseDiv.innerHTML = `<div class="response success"><details><summary>View Full JSON Response</summary><pre>${JSON.stringify(data, null, 2)}</pre></details></div>`;
+                
+            } catch (e) {
+                const container = document.getElementById('chatContainer');
+                if (container.lastChild && container.lastChild.textContent.includes('Analyzing')) {
+                    container.removeChild(container.lastChild);
+                }
+                addMessage('answer', `Error: ${e.message}`);
+                responseDiv.innerHTML = `<div class="response error">Error: ${e.message}</div>`;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '📊 Run Full Analysis';
+            }
         }
 
         async function askQuestion() {
@@ -434,11 +522,21 @@
                     dataRefs.push(`Company: ${data.company_id}`);
                 }
                 
-                // Format and add answer
+                // Format and add answer - emphasize the direct answer
                 const formattedAnswer = formatResponse(data);
                 const answerDiv = document.createElement('div');
                 answerDiv.className = 'chat-message chat-answer';
-                answerDiv.innerHTML = `<strong>PRISMA AI:</strong><br>${formattedAnswer}`;
+                
+                // Show direct answer prominently if available
+                let answerHtml = `<strong>PRISMA AI:</strong><br>`;
+                if (data.answer && data.answer !== 'N/A' && data.answer !== 'Analysis provided') {
+                    answerHtml += `<div style="background: #fff3cd; padding: 12px; border-radius: 6px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
+                        <strong>💡 Answer:</strong> ${escapeHtml(data.answer)}
+                    </div>`;
+                }
+                answerHtml += formattedAnswer;
+                
+                answerDiv.innerHTML = answerHtml;
                 if (dataRefs.length > 0) {
                     answerDiv.innerHTML += `<div class="data-ref">📊 Analysis based on: ${dataRefs.join(' | ')}</div>`;
                 }

@@ -6,17 +6,42 @@ Provides industry-specific trend signals and intelligence data.
 Design:
 - MVP: Returns hardcoded sample trends based on industry
 - Production: Integrates with Google Programmable Search Engine
+- Caching: Uses cache_manager for rate-limit protection
 
 Integration:
 - Called by external_signals.engine.build_signals()
 - Signals feed into LLM reasoning layer
 - Structured format compatible with DemandSignal
+
+Standardized Output Format:
+{
+  "type": "industry_trend",
+  "industry": "construction",
+  "region": "Global",
+  "summary": "Infrastructure spending increase...",
+  "impact_on_materials": [
+    {"material": "Steel", "effect": "demand_increase"}
+  ],
+  "source": "https://...",
+  "confidence": 0.85
+}
 """
 
 import os
+import sys
 import requests
 from typing import List, Dict, Any, Optional
 from datetime import datetime
+from pathlib import Path
+
+# Import cache manager
+sys.path.insert(0, str(Path(__file__).parent.parent))
+try:
+    from utils.cache_manager import CacheManager, SHORT_TTL, DEFAULT_TTL
+    CACHE_AVAILABLE = True
+except ImportError:
+    CACHE_AVAILABLE = False
+    print("Warning: cache_manager not available, caching disabled")
 
 
 # ============================================================================
@@ -137,20 +162,36 @@ GOOGLE_SEARCH_API_KEY = os.getenv("GOOGLE_SEARCH_API_KEY", "")
 GOOGLE_SEARCH_ENGINE_ID = os.getenv("GOOGLE_SEARCH_ENGINE_ID", "")
 GOOGLE_SEARCH_BASE_URL = "https://www.googleapis.com/customsearch/v1"
 
+# Initialize cache manager for API responses
+cache = CacheManager() if CACHE_AVAILABLE else None
 
-def search_google(query: str, num_results: int = 5) -> List[Dict[str, Any]]:
+
+def search_google(query: str, num_results: int = 5, use_cache: bool = True) -> List[Dict[str, Any]]:
     """
     Search Google Programmable Search Engine for industry trends.
+    
+    Features:
+    - Caches results for 1 hour to avoid rate limits
+    - Fallback to empty list if API unavailable
     
     Args:
         query: Search query
         num_results: Number of results to return
+        use_cache: Whether to use cached results (default: True)
     
     Returns:
         List of search results with title, snippet, link
     """
     if not GOOGLE_SEARCH_API_KEY or not GOOGLE_SEARCH_ENGINE_ID:
         return []
+    
+    # Check cache first
+    cache_key = f"google_search:{query}:{num_results}"
+    if use_cache and cache and CACHE_AVAILABLE:
+        cached_results = cache.get(cache_key)
+        if cached_results is not None:
+            print(f"Using cached Google Search results for: {query}")
+            return cached_results
     
     try:
         params = {
@@ -166,7 +207,7 @@ def search_google(query: str, num_results: int = 5) -> List[Dict[str, Any]]:
         data = response.json()
         items = data.get("items", [])
         
-        return [
+        results = [
             {
                 "title": item.get("title", ""),
                 "snippet": item.get("snippet", ""),
@@ -175,6 +216,12 @@ def search_google(query: str, num_results: int = 5) -> List[Dict[str, Any]]:
             }
             for item in items
         ]
+        
+        # Cache results for 1 hour
+        if cache and CACHE_AVAILABLE:
+            cache.set(cache_key, results, ttl=SHORT_TTL)
+        
+        return results
     
     except Exception as e:
         print(f"Google Search error: {e}")
@@ -403,6 +450,101 @@ def get_available_industries() -> List[str]:
     return list(INDUSTRY_TRENDS_DATABASE.keys())
 
 
+def to_standardized_format(
+    trend: Dict[str, Any],
+    industry: str,
+    region: str = "Global"
+) -> Dict[str, Any]:
+    """
+    Convert internal trend format to standardized output format.
+    
+    Standardized format matches the specification:
+    {
+      "type": "industry_trend",
+      "industry": "construction",
+      "region": "Global",
+      "summary": "Infrastructure spending increase...",
+      "impact_on_materials": [
+        {"material": "Steel", "effect": "demand_increase"}
+      ],
+      "source": "https://...",
+      "confidence": 0.85
+    }
+    
+    Args:
+        trend: Internal trend dictionary
+        industry: Industry name
+        region: Region (default: "Global")
+    
+    Returns:
+        Standardized trend dictionary
+    """
+    # Map impact to effect
+    impact_map = {
+        "increase": "demand_increase",
+        "decrease": "demand_decrease",
+        "stable": "demand_stable"
+    }
+    
+    impact = trend.get("impact", "stable")
+    effect = impact_map.get(impact, "demand_stable")
+    
+    # Build impact_on_materials list
+    materials_affected = trend.get("materials_affected", [])
+    impact_on_materials = [
+        {"material": mat, "effect": effect}
+        for mat in materials_affected
+    ]
+    
+    # Build standardized output
+    return {
+        "type": "industry_trend",
+        "industry": industry,
+        "region": region,
+        "summary": f"{trend.get('title', 'Industry trend')}: {trend.get('description', '')}",
+        "impact_on_materials": impact_on_materials,
+        "source": trend.get("link", trend.get("source", "Industry Report")),
+        "confidence": trend.get("confidence", 0.70),
+        "date": trend.get("date", datetime.now().strftime("%Y-%m-%d")),
+        "trend_id": trend.get("trend_id", f"trend-{hash(trend.get('title', '')) % 10000}")
+    }
+
+
+def get_standardized_trends(
+    industry: str,
+    materials: Optional[List[str]] = None,
+    region: str = "Global"
+) -> List[Dict[str, Any]]:
+    """
+    Get industry trends in standardized output format.
+    
+    This is the recommended function for external consumers who need
+    consistent, well-structured trend data.
+    
+    Args:
+        industry: Industry name
+        materials: Optional materials filter
+        region: Region (default: "Global")
+    
+    Returns:
+        List of trends in standardized format
+    
+    Example:
+        >>> trends = get_standardized_trends("construction", materials=["Steel"])
+        >>> for trend in trends:
+        ...     print(trend["summary"])
+        ...     print(trend["impact_on_materials"])
+    """
+    # Get raw trends
+    raw_trends = get_industry_trends(industry, materials)
+    
+    # Convert to standardized format
+    return [
+        to_standardized_format(trend, industry, region)
+        for trend in raw_trends
+    ]
+
+
 # ============================================================================
 # TODO: Future Production Enhancements
 # ============================================================================
@@ -475,7 +617,10 @@ def get_industry_trends_production(industry: str) -> List[Dict]:
 __all__ = [
     "get_industry_trends",
     "get_industry_signals",
+    "get_standardized_trends",
+    "to_standardized_format",
     "search_industry_trends",
     "get_available_industries",
+    "search_google",
 ]
 

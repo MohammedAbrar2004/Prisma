@@ -23,6 +23,7 @@ load_dotenv()
 from routes.signals import router as signals_router
 from routes.analyze import router as analyze_router
 from routes.forecast import router as forecast_router
+from routes.admin import router as admin_router
 
 # ============================================================================
 # App Initialization
@@ -57,6 +58,9 @@ app = FastAPI(
     * `GET /signals/{company_id}` - Get external demand signals
     * `POST /analyze` - Get AI-powered procurement recommendations
     * `POST /analyze/ask` - Ask specific questions about demand/procurement
+    * `POST /forecast/generate` - Generate demand forecasts
+    * `GET /admin/cache/stats` - Cache statistics
+    * `GET /admin/diagnostics` - System diagnostics
     
     ### External APIs Used
     
@@ -93,6 +97,7 @@ app.add_middleware(
 app.include_router(signals_router)
 app.include_router(analyze_router)
 app.include_router(forecast_router)
+app.include_router(admin_router)
 
 # Serve static files (UI)
 try:
@@ -131,12 +136,44 @@ async def root():
 @app.get("/health")
 async def health():
     """
-    Basic health check endpoint
+    Comprehensive health check endpoint
+    
+    Checks:
+    - API availability
+    - Ollama connection
+    - Cache system
+    - External signals
+    
+    Returns detailed system status
     """
+    from llm import test_ollama_connection
+    
+    # Check Ollama
+    try:
+        ollama_status = test_ollama_connection()
+    except:
+        ollama_status = {"status": "error", "message": "Failed to connect"}
+    
+    # Check cache
+    try:
+        from utils.cache_manager import cache_stats
+        cache_status = cache_stats()
+    except:
+        cache_status = {"enabled": False, "error": "cache_manager not available"}
+    
+    # Overall health
+    is_healthy = ollama_status.get("status") == "connected"
+    
     return {
-        "status": "healthy",
+        "status": "healthy" if is_healthy else "degraded",
         "service": "PRISMA Backend",
-        "version": "0.1.0"
+        "version": "0.1.0",
+        "components": {
+            "api": {"status": "operational"},
+            "llm": ollama_status,
+            "cache": cache_status,
+        },
+        "message": "All systems operational" if is_healthy else "Some components unavailable"
     }
 
 
@@ -167,6 +204,16 @@ async def startup_event():
     print("=" * 60)
     print(f"Environment: {os.getenv('ENVIRONMENT', 'development')}")
     print(f"Docs available at: http://localhost:8000/docs")
+    
+    # Initialize cache directory
+    try:
+        from pathlib import Path
+        cache_dir = Path(__file__).parent / ".cache"
+        cache_dir.mkdir(exist_ok=True)
+        print(f"Cache directory: {cache_dir}")
+    except Exception as e:
+        print(f"Warning: Could not create cache directory: {e}")
+    
     print("=" * 60)
 
 

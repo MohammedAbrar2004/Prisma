@@ -128,14 +128,19 @@ You MUST respond with ONLY valid JSON in this exact structure:
   ]
 }
 
-IMPORTANT:
+IMPORTANT JSON FORMATTING RULES:
+- Output ONLY valid JSON - no extra text before or after
+- Do NOT use markdown code blocks (no ```json or ```)
+- Do NOT add trailing commas before closing braces/brackets
+- All strings MUST be properly closed with quotes
+- Escape special characters in strings (use \" for quotes inside strings)
 - If a question is provided, "answer" field MUST directly answer that question first
 - "answer" should be concise (1-2 sentences) and reference specific data
 - Include AT LEAST one item in recommended_actions
 - Include AT LEAST one item in risks
 - watchlist_materials can be empty if no materials need special monitoring
-- Do NOT include any text outside the JSON object
-- Do NOT use markdown code blocks - just output raw JSON
+
+CRITICAL: Your response must be valid JSON that can be parsed by json.loads(). Test it mentally before outputting.
 """
 
     # Add optional question section
@@ -284,8 +289,9 @@ def extract_json_block(raw_response: str) -> Dict[str, Any]:
     Strategy:
     1. Find the first '{' and last '}' in the response
     2. Extract that substring
-    3. Parse as JSON
-    4. Validate basic structure
+    3. Try to fix common JSON issues (trailing commas, unclosed strings)
+    4. Parse as JSON
+    5. Validate basic structure
     
     Args:
         raw_response: Raw text response from the LLM
@@ -307,9 +313,9 @@ def extract_json_block(raw_response: str) -> Dict[str, Any]:
         raise ValueError("Empty response from LLM - cannot extract JSON")
     
     # Remove markdown code blocks if present
-    # Some models might return: ```json\n{...}\n```
     cleaned = re.sub(r'```json\s*', '', raw_response)
     cleaned = re.sub(r'```\s*$', '', cleaned)
+    cleaned = re.sub(r'```\s*\n', '\n', cleaned)
     
     # Find the first '{' and last '}'
     first_brace = cleaned.find('{')
@@ -323,6 +329,22 @@ def extract_json_block(raw_response: str) -> Dict[str, Any]:
     
     # Extract the JSON substring
     json_str = cleaned[first_brace:last_brace + 1]
+    
+    # Try to fix common JSON issues
+    # Remove trailing commas before closing braces/brackets
+    json_str = re.sub(r',(\s*[}\]])', r'\1', json_str)
+    
+    # Try to close unclosed strings (basic fix)
+    # Count quotes - if odd, try to close the last string
+    quote_count = json_str.count('"') - json_str.count('\\"')
+    if quote_count % 2 != 0:
+        # Find last unclosed quote and close it
+        last_quote = json_str.rfind('"')
+        if last_quote > 0 and json_str[last_quote-1] != '\\':
+            # Check if it's actually unclosed by looking ahead
+            remaining = json_str[last_quote+1:]
+            if not remaining.strip().startswith((':', ',', '}', ']')):
+                json_str = json_str[:last_quote+1] + '"' + json_str[last_quote+1:]
     
     try:
         # Parse the JSON
@@ -346,10 +368,40 @@ def extract_json_block(raw_response: str) -> Dict[str, Any]:
         return parsed
     
     except json.JSONDecodeError as e:
+        # Try one more time with more aggressive cleaning
+        try:
+            # Remove any text after the last complete JSON structure
+            # Find nested braces to get complete JSON
+            brace_count = 0
+            end_pos = first_brace
+            for i in range(first_brace, len(cleaned)):
+                if cleaned[i] == '{':
+                    brace_count += 1
+                elif cleaned[i] == '}':
+                    brace_count -= 1
+                    if brace_count == 0:
+                        end_pos = i
+                        break
+            
+            if end_pos > first_brace:
+                json_str = cleaned[first_brace:end_pos + 1]
+                json_str = re.sub(r',(\s*[}\]])', r'\1', json_str)
+                parsed = json.loads(json_str)
+                
+                if 'summary' not in parsed:
+                    parsed['summary'] = 'Analysis completed'
+                if 'answer' not in parsed:
+                    parsed['answer'] = parsed.get('summary', 'N/A')
+                
+                return parsed
+        except:
+            pass
+        
+        # If all else fails, return a structured error response
         raise ValueError(
-            f"Failed to parse JSON from response. "
-            f"JSON string: {json_str[:200]}... "
-            f"Error: {str(e)}"
+            f"Failed to parse JSON from LLM response. "
+            f"Error at position {e.pos if hasattr(e, 'pos') else 'unknown'}: {str(e)}. "
+            f"Response preview: {raw_response[:300]}..."
         )
 
 

@@ -17,11 +17,24 @@ Design principles:
 
 import os
 import json
+import sys
+from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Literal, Optional
 from dataclasses import dataclass, field, asdict
 import requests
 from enum import Enum
+
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+# Import industry intelligence module
+try:
+    from search.industry import get_industry_signals
+    INDUSTRY_MODULE_AVAILABLE = True
+except ImportError:
+    INDUSTRY_MODULE_AVAILABLE = False
+    print("Warning: Industry intelligence module not available")
 
 
 # ============================================================================
@@ -534,7 +547,8 @@ def build_signals(
     region: Optional[str] = None,
     materials: Optional[list[str]] = None,
     horizon: str = "next_month",
-    use_real_apis: bool = True
+    use_real_apis: bool = True,
+    industry: Optional[str] = None
 ) -> dict:
     """
     Main orchestrator: builds comprehensive demand signals.
@@ -545,6 +559,7 @@ def build_signals(
        - Fetches commodity/metal price signals
        - Fetches weather signals
        - Fetches infra activity signals
+       - Fetches industry intelligence signals
     3. Merges and deduplicates signals
     4. Returns unified JSON structure
     
@@ -554,6 +569,7 @@ def build_signals(
         materials: Optional list of materials to focus on
         horizon: Time horizon (e.g., "next_month", "next_quarter")
         use_real_apis: Whether to call real APIs (if configured)
+        industry: Optional industry/sector (e.g., "construction", "manufacturing")
         
     Returns:
         dict: {
@@ -609,11 +625,38 @@ def build_signals(
                 infra_signal.horizon = horizon
                 all_signals.append(infra_signal)
                 data_sources.append("worldbank_api")
+        
+        # Fetch industry intelligence signals
+        if industry and INDUSTRY_MODULE_AVAILABLE:
+            try:
+                industry_data = get_industry_signals(
+                    industry=industry,
+                    company_id=company_id,
+                    materials=materials
+                )
+                
+                # Convert industry signals to DemandSignal format
+                for signal_dict in industry_data.get("signals", []):
+                    try:
+                        # Remove last_updated if it's a string (DemandSignal will set it)
+                        signal_dict_clean = {k: v for k, v in signal_dict.items() if k != "last_updated"}
+                        industry_signal = DemandSignal(**signal_dict_clean)
+                        industry_signal.horizon = horizon
+                        all_signals.append(industry_signal)
+                    except Exception as e:
+                        print(f"Warning: Could not parse industry signal: {e}")
+                        continue
+                
+                if "industry_intelligence" not in data_sources:
+                    data_sources.append("industry_intelligence")
+            except Exception as e:
+                print(f"Warning: Could not fetch industry signals: {e}")
     
     return {
         "company_id": company_id,
         "horizon": horizon,
         "region_filter": region,
+        "industry": industry,
         "signals": [signal.to_dict() for signal in all_signals],
         "data_sources": data_sources,
         "generated_at": datetime.now().isoformat()

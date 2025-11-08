@@ -11,8 +11,9 @@ or:
 """
 
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -20,6 +21,8 @@ load_dotenv()
 
 # Import routers
 from routes.signals import router as signals_router
+from routes.analyze import router as analyze_router
+from routes.forecast import router as forecast_router
 
 # ============================================================================
 # App Initialization
@@ -36,19 +39,28 @@ app = FastAPI(
     ### Features
     
     * **External Signals** - Real-time commodity prices, weather, and infrastructure data
-    * **Demand Forecasting** - ML-based material demand predictions (coming soon)
-    * **LLM Reasoning** - AI-powered explanations and recommendations (coming soon)
+    * **Industry Intelligence** - Sector-specific trend analysis and insights
+    * **LLM Reasoning** - AI-powered explanations and recommendations using Ollama (llama3)
+    * **Demand Analysis** - Comprehensive procurement recommendations based on forecasts and signals
     * **Requirements Upload** - Parse and normalize company requirements (coming soon)
     
     ### Getting Started
     
-    1. Configure API keys in `.env` file (copy from `env.example`)
-    2. Start the server: `uvicorn main:app --reload`
-    3. Visit `/docs` for interactive API documentation
-    4. Test signals endpoint: `GET /signals/test-company`
+    1. Ensure Ollama is running: `ollama serve` with llama3 model installed
+    2. Configure API keys in `.env` file (copy from `env.example`)
+    3. Start the server: `uvicorn main:app --reload`
+    4. Visit `/docs` for interactive API documentation
+    5. Test analysis endpoint: `POST /analyze` with company_id
+    
+    ### Key Endpoints
+    
+    * `GET /signals/{company_id}` - Get external demand signals
+    * `POST /analyze` - Get AI-powered procurement recommendations
+    * `POST /analyze/ask` - Ask specific questions about demand/procurement
     
     ### External APIs Used
     
+    * Ollama (Local) - LLM reasoning with llama3
     * MetalpriceAPI - Metal/commodity prices
     * CommodityAPI - Broader commodity tracking
     * WeatherAPI - Regional weather forecasts
@@ -79,6 +91,17 @@ app.add_middleware(
 # ============================================================================
 
 app.include_router(signals_router)
+app.include_router(analyze_router)
+app.include_router(forecast_router)
+
+# Serve static files (UI)
+try:
+    from pathlib import Path
+    static_path = Path(__file__).parent / "static"
+    if static_path.exists():
+        app.mount("/static", StaticFiles(directory=str(static_path)), name="static")
+except:
+    pass
 
 # ============================================================================
 # Root Endpoints
@@ -89,11 +112,19 @@ async def root():
     """
     Root endpoint - API welcome message
     """
+    from fastapi.responses import FileResponse
+    from pathlib import Path
+    
+    ui_path = Path(__file__).parent / "static" / "index.html"
+    if ui_path.exists():
+        return FileResponse(str(ui_path))
+    
     return {
         "message": "Welcome to PRISMA API",
         "version": "0.1.0",
         "docs": "/docs",
-        "health": "/health"
+        "health": "/health",
+        "ui": "/static/index.html"
     }
 
 
@@ -107,6 +138,19 @@ async def health():
         "service": "PRISMA Backend",
         "version": "0.1.0"
     }
+
+
+@app.get("/data/{filename}")
+async def serve_data(filename: str):
+    """Serve mock data files for UI"""
+    from pathlib import Path
+    import json
+    
+    data_path = Path(__file__).parent / "data" / filename
+    if data_path.exists() and filename.endswith('.json'):
+        with open(data_path) as f:
+            return json.load(f)
+    raise HTTPException(status_code=404, detail="File not found")
 
 
 # ============================================================================

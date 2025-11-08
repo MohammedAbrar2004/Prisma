@@ -363,8 +363,8 @@ async def analyze_direct(req: DirectAnalyzeRequest):
             )
             
             # Convert trends to signals format
+            trend_signals = []
             if trends:
-                trend_signals = []
                 for trend in trends:
                     for material in trend.get("materials_affected", materials or ["General"]):
                         trend_signals.append({
@@ -376,11 +376,16 @@ async def analyze_direct(req: DirectAnalyzeRequest):
                             "drivers": [trend.get("title", ""), trend.get("description", "")[:100]],
                             "source": "google_search"
                         })
-                
-                req.signals = {
-                    "signals": trend_signals,
-                    "data_sources": ["google_search"]
-                }
+            
+            # Ensure signals always has a valid structure
+            req.signals = {
+                "signals": trend_signals if trend_signals else [],
+                "data_sources": ["google_search"] if trend_signals else []
+            }
+        
+        # Ensure signals is never None
+        if not req.signals:
+            req.signals = {"signals": [], "data_sources": []}
         
         result = analyze_prisma(
             company_profile=req.company_profile,
@@ -391,8 +396,19 @@ async def analyze_direct(req: DirectAnalyzeRequest):
         
         return JSONResponse(content=result)
     
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        # Log the full error for debugging
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"ERROR in /analyze/direct: {str(e)}")
+        print(f"Traceback:\n{error_details}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Analysis failed: {str(e)}. Check server logs for details."
+        )
 
 
 # ============================================================================

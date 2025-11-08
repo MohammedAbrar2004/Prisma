@@ -3,121 +3,284 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRISMA LLM Tester</title>
+    <title>PRISMA - AI Procurement Advisor</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #f5f5f5;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             padding: 20px;
+            min-height: 100vh;
         }
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             background: white;
-            border-radius: 8px;
-            padding: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
         }
-        h1 { color: #333; margin-bottom: 20px; }
+        h1 { 
+            color: #333; 
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
         .section { margin-bottom: 30px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; }
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 600; 
+            color: #555;
+            font-size: 14px;
+        }
         textarea, input[type="text"] {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
             font-size: 14px;
-            font-family: monospace;
+            font-family: inherit;
+            transition: border-color 0.3s;
         }
-        textarea { min-height: 150px; resize: vertical; }
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        textarea { 
+            min-height: 120px; 
+            resize: vertical;
+            line-height: 1.6;
+        }
+        .question-section {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .question-section textarea {
+            background: white;
+            font-size: 16px;
+            min-height: 80px;
+        }
         button {
-            background: #007bff;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 4px;
+            padding: 14px 28px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 16px;
+            font-weight: 600;
             margin-right: 10px;
+            margin-bottom: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        button:hover { background: #0056b3; }
-        button:disabled { background: #ccc; cursor: not-allowed; }
+        button:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        button:disabled { 
+            background: #ccc; 
+            cursor: not-allowed;
+            transform: none;
+        }
         .file-upload {
             border: 2px dashed #ddd;
-            padding: 20px;
+            padding: 15px;
             text-align: center;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
             margin-bottom: 10px;
+            transition: all 0.3s;
+            font-size: 13px;
+            color: #666;
         }
-        .file-upload:hover { border-color: #007bff; }
+        .file-upload:hover { 
+            border-color: #667eea; 
+            background: #f8f9ff;
+        }
         .response {
             margin-top: 20px;
-            padding: 15px;
+            padding: 20px;
             background: #f8f9fa;
-            border-radius: 4px;
-            white-space: pre-wrap;
-            font-family: monospace;
-            font-size: 13px;
-            max-height: 500px;
-            overflow-y: auto;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+            line-height: 1.8;
         }
-        .error { background: #fee; color: #c00; }
-        .success { background: #efe; color: #060; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+        .response.error { 
+            background: #fff5f5; 
+            color: #c00;
+            border-left-color: #dc3545;
+        }
+        .response.success { 
+            background: #f0fff4; 
+            color: #155724;
+        }
+        .response-content {
+            white-space: pre-wrap;
+            font-size: 15px;
+        }
+        .response-summary {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .response-actions, .response-risks {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+        }
+        .action-item, .risk-item {
+            padding: 10px;
+            margin: 8px 0;
+            background: #f8f9ff;
+            border-radius: 4px;
+        }
+        .action-item strong {
+            color: #667eea;
+        }
+        .risk-item strong {
+            color: #dc3545;
+        }
+        .data-reference {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            color: #856404;
+            font-weight: 600;
+        }
+        .grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 20px; 
+        }
+        .data-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+        .data-section textarea {
+            background: white;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .chat-container {
+            max-height: 600px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        .chat-message {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .chat-question {
+            background: #e3f2fd;
+            margin-left: 20%;
+            border-bottom-right-radius: 4px;
+        }
+        .chat-answer {
+            background: #f1f8e9;
+            margin-right: 20%;
+            border-bottom-left-radius: 4px;
+        }
+        .chat-answer .data-ref {
+            font-size: 11px;
+            color: #666;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+        }
+        @media (max-width: 768px) { 
+            .grid { grid-template-columns: 1fr; }
+            .chat-question { margin-left: 0; }
+            .chat-answer { margin-right: 0; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>PRISMA LLM Tester</h1>
+        <h1>🤖 PRISMA - AI Procurement Advisor</h1>
+        <p class="subtitle">Ask questions about your procurement strategy. The AI analyzes your company data, forecasts, and market signals.</p>
         
-        <div class="section">
-            <label>Question / Prompt:</label>
-            <textarea id="question" placeholder="e.g., Should we increase steel procurement? What are the risks?"></textarea>
+        <div class="section question-section">
+            <label>💬 Ask Your Question:</label>
+            <textarea id="question" placeholder="Examples:&#10;- Should we increase steel procurement for next month?&#10;- What are the biggest risks to our supply chain?&#10;- Which materials need the most attention?&#10;- How do market signals affect our procurement strategy?"></textarea>
         </div>
 
-        <div class="grid">
-            <div class="section">
-                <label>Company Profile JSON (or upload file):</label>
-                <div class="file-upload" onclick="document.getElementById('profileFile').click()">
-                    Click to upload or paste JSON below
+        <div class="section">
+            <details>
+                <summary style="cursor: pointer; font-weight: 600; margin-bottom: 15px; color: #667eea;">
+                    📊 Data Input (Click to expand) - Company Profile Required
+                </summary>
+                
+                <div class="data-section">
+                    <label>Company Profile JSON:</label>
+                    <div class="file-upload" onclick="document.getElementById('profileFile').click()">
+                        📁 Click to upload or paste JSON below
+                    </div>
+                    <input type="file" id="profileFile" accept=".json" style="display:none" onchange="loadFile('profileFile', 'profile')">
+                    <textarea id="profile" placeholder='{"company_id": "abc-infra", "projects": [...]}'></textarea>
                 </div>
-                <input type="file" id="profileFile" accept=".json" style="display:none" onchange="loadFile('profileFile', 'profile')">
-                <textarea id="profile" placeholder='{"company_id": "abc-infra", "projects": [...]}'></textarea>
-            </div>
 
-            <div class="section">
-                <label>Forecasts JSON (optional - auto-generated if empty):</label>
-                <div class="file-upload" onclick="document.getElementById('forecastFile').click()">
-                    Click to upload or paste JSON below (leave empty to auto-generate)
+                <div class="data-section">
+                    <label>Forecasts JSON (optional - auto-generated if empty):</label>
+                    <div class="file-upload" onclick="document.getElementById('forecastFile').click()">
+                        📁 Click to upload or paste JSON (leave empty to auto-generate)
+                    </div>
+                    <input type="file" id="forecastFile" accept=".json" style="display:none" onchange="loadFile('forecastFile', 'forecast')">
+                    <textarea id="forecast" placeholder='{"forecasts": [...]} - Leave empty to auto-generate'></textarea>
                 </div>
-                <input type="file" id="forecastFile" accept=".json" style="display:none" onchange="loadFile('forecastFile', 'forecast')">
-                <textarea id="forecast" placeholder='{"forecasts": [...]} - Leave empty to auto-generate from company profile'></textarea>
-            </div>
+
+                <div class="data-section">
+                    <label>Signals JSON (optional - auto-generated if empty):</label>
+                    <div class="file-upload" onclick="document.getElementById('signalFile').click()">
+                        📁 Click to upload or paste JSON (leave empty to auto-generate)
+                    </div>
+                    <input type="file" id="signalFile" accept=".json" style="display:none" onchange="loadFile('signalFile', 'signals')">
+                    <textarea id="signals" placeholder='{"signals": [...]} - Leave empty to auto-generate'></textarea>
+                </div>
+            </details>
         </div>
 
         <div class="section">
-            <label>Signals JSON (optional, or upload file):</label>
-            <div class="file-upload" onclick="document.getElementById('signalFile').click()">
-                Click to upload or paste JSON below
-            </div>
-            <input type="file" id="signalFile" accept=".json" style="display:none" onchange="loadFile('signalFile', 'signals')">
-            <textarea id="signals" placeholder='{"signals": [...]}'></textarea>
+            <button onclick="loadDefaults()">📥 Load Default Mock Data</button>
+            <button onclick="askQuestion()" id="askBtn">🚀 Ask Question</button>
+            <button onclick="clearChat()" style="background: #6c757d;">🗑️ Clear Chat</button>
         </div>
 
-        <div class="section">
-            <button onclick="loadDefaults()">Load Default Mock Data</button>
-            <button onclick="analyze()" id="analyzeBtn">Analyze</button>
-            <button onclick="clearAll()">Clear All</button>
-        </div>
-
+        <div id="chatContainer" class="chat-container"></div>
         <div id="response"></div>
     </div>
 
     <script>
         const API_URL = 'http://localhost:8000';
+        let chatHistory = [];
 
         async function loadFile(inputId, textareaId) {
             const file = document.getElementById(inputId).files[0];
@@ -139,61 +302,173 @@
                 ]);
                 document.getElementById('profile').value = JSON.stringify(profile, null, 2);
                 document.getElementById('forecast').value = JSON.stringify(forecast, null, 2);
-                document.getElementById('question').value = 'What are the key procurement priorities?';
+                addMessage('system', 'Default mock data loaded. You can now ask questions!');
             } catch (e) {
                 alert('Could not load defaults. Make sure server is running.');
             }
         }
 
-        async function analyze() {
-            const btn = document.getElementById('analyzeBtn');
-            const responseDiv = document.getElementById('response');
-            btn.disabled = true;
-            responseDiv.innerHTML = '<div class="response">Processing... Generating forecasts and searching for industry knowledge. This may take 30-60 seconds.</div>';
+        function addMessage(type, content, dataRefs = null) {
+            const container = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message chat-${type}`;
+            
+            if (type === 'question') {
+                messageDiv.innerHTML = `<strong>You:</strong><br>${escapeHtml(content)}`;
+            } else if (type === 'answer') {
+                let html = `<strong>PRISMA AI:</strong><br>${escapeHtml(content)}`;
+                if (dataRefs) {
+                    html += `<div class="data-ref">📊 Based on: ${dataRefs}</div>`;
+                }
+                messageDiv.innerHTML = html;
+            } else {
+                messageDiv.innerHTML = `<em>${escapeHtml(content)}</em>`;
+                messageDiv.style.fontSize = '13px';
+                messageDiv.style.color = '#666';
+            }
+            
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
 
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatResponse(data) {
+            let html = `<div class="response-summary">${escapeHtml(data.summary || 'Analysis complete')}</div>`;
+            
+            if (data.recommended_actions && data.recommended_actions.length > 0) {
+                html += '<div class="response-actions"><strong>📋 Recommended Actions:</strong>';
+                data.recommended_actions.forEach(action => {
+                    html += `<div class="action-item">
+                        <strong>${escapeHtml(action.material)}:</strong> ${escapeHtml(action.action)}
+                        <br><small style="color: #666;">Reason: ${escapeHtml(action.reason)}</small>
+                    </div>`;
+                });
+                html += '</div>';
+            }
+            
+            if (data.risks && data.risks.length > 0) {
+                html += '<div class="response-risks"><strong>⚠️ Identified Risks:</strong>';
+                data.risks.forEach(risk => {
+                    html += `<div class="risk-item">
+                        <strong>${escapeHtml(risk.material)}</strong> - ${escapeHtml(risk.risk_level)} risk
+                        <br><small style="color: #666;">Drivers: ${escapeHtml((risk.drivers || []).join(', '))}</small>
+                    </div>`;
+                });
+                html += '</div>';
+            }
+            
+            if (data.watchlist_materials && data.watchlist_materials.length > 0) {
+                html += '<div style="margin-top: 15px;"><strong>👀 Watchlist:</strong><ul>';
+                data.watchlist_materials.forEach(item => {
+                    html += `<li><strong>${escapeHtml(item.material)}</strong>: ${escapeHtml(item.reason)}</li>`;
+                });
+                html += '</ul></div>';
+            }
+            
+            return html;
+        }
+
+        async function askQuestion() {
+            const question = document.getElementById('question').value.trim();
+            const btn = document.getElementById('askBtn');
+            const responseDiv = document.getElementById('response');
+            
+            if (!question) {
+                alert('Please enter a question');
+                return;
+            }
+            
+            const profileText = document.getElementById('profile').value.trim();
+            if (!profileText) {
+                alert('Please provide company profile data (or click "Load Default Mock Data")');
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> Analyzing...';
+            
+            // Add question to chat
+            addMessage('question', question);
+            
+            // Show loading message
+            const loadingMsg = addMessage('answer', 'Analyzing your data and generating recommendations... This may take 30-60 seconds.');
+            
             try {
-                const question = document.getElementById('question').value.trim();
-                const profileText = document.getElementById('profile').value.trim();
+                const profile = JSON.parse(profileText);
                 const forecastText = document.getElementById('forecast').value.trim();
                 const signalsText = document.getElementById('signals').value.trim();
-
-                if (!profileText) {
-                    throw new Error('Company profile is required');
-                }
-
-                const profile = JSON.parse(profileText);
-                const forecast = forecastText ? JSON.parse(forecastText) : null;
-                const signals = signalsText ? JSON.parse(signalsText) : null;
-
-                // Use /analyze/direct endpoint - it auto-generates forecasts and uses Google Search
+                
+                const forecast = forecastText ? JSON.parse(forecastText) : {};
+                const signals = signalsText ? JSON.parse(signalsText) : {};
+                
+                // Use /analyze/direct endpoint
                 const res = await fetch(`${API_URL}/analyze/direct`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         company_profile: profile,
-                        forecasts: forecast || {},
-                        signals: signals || {},
-                        question: question || null
+                        forecasts: forecast,
+                        signals: signals,
+                        question: question
                     })
                 });
 
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.detail || 'Request failed');
                 
-                responseDiv.innerHTML = `<div class="response success">${JSON.stringify(data, null, 2)}</div>`;
+                // Remove loading message
+                const container = document.getElementById('chatContainer');
+                container.removeChild(container.lastChild);
+                
+                // Build data references
+                const dataRefs = [];
+                if (data.data_sources && data.data_sources.length > 0) {
+                    dataRefs.push(`Data sources: ${data.data_sources.join(', ')}`);
+                }
+                if (data.company_id) {
+                    dataRefs.push(`Company: ${data.company_id}`);
+                }
+                
+                // Format and add answer
+                const formattedAnswer = formatResponse(data);
+                const answerDiv = document.createElement('div');
+                answerDiv.className = 'chat-message chat-answer';
+                answerDiv.innerHTML = `<strong>PRISMA AI:</strong><br>${formattedAnswer}`;
+                if (dataRefs.length > 0) {
+                    answerDiv.innerHTML += `<div class="data-ref">📊 Analysis based on: ${dataRefs.join(' | ')}</div>`;
+                }
+                container.appendChild(answerDiv);
+                container.scrollTop = container.scrollHeight;
+                
+                // Also show in response div for full JSON view
+                responseDiv.innerHTML = `<div class="response success"><details><summary>View Full JSON Response</summary><pre>${JSON.stringify(data, null, 2)}</pre></details></div>`;
+                
+                // Clear question for next query
+                document.getElementById('question').value = '';
+                
             } catch (e) {
+                const container = document.getElementById('chatContainer');
+                if (container.lastChild && container.lastChild.textContent.includes('Analyzing')) {
+                    container.removeChild(container.lastChild);
+                }
+                addMessage('answer', `Error: ${e.message}`);
                 responseDiv.innerHTML = `<div class="response error">Error: ${e.message}</div>`;
             } finally {
                 btn.disabled = false;
+                btn.innerHTML = '🚀 Ask Question';
             }
         }
 
-        function clearAll() {
-            document.getElementById('question').value = '';
-            document.getElementById('profile').value = '';
-            document.getElementById('forecast').value = '';
-            document.getElementById('signals').value = '';
+        function clearChat() {
+            document.getElementById('chatContainer').innerHTML = '';
             document.getElementById('response').innerHTML = '';
+            document.getElementById('question').value = '';
+            chatHistory = [];
         }
     </script>
 </body>

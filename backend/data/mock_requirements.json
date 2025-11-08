@@ -1,80 +1,316 @@
 {
-  "company": "ABC Infrastructure Ltd",
-  "company_id": "abc-infra",
-  "upload_date": "2025-11-07",
+  "company_id": "global-infrastructure-corp",
+  "company_name": "Global Infrastructure Corporation",
+  "industry": "infrastructure",
+  "region": "Global",
+  "headquarters": "Mumbai, India",
+  "description": "Leading infrastructure development company specializing in highways, bridges, power transmission, and urban development projects across Asia-Pacific region",
+  "annual_revenue_usd": 2500000000,
+  "employee_count": 5000,
+  "active_projects": 8,
+  "procurement_contacts": {
+    "primary": {
+      "name": "Rajesh Kumar",
+      "title": "Chief Procurement Officer",
+      "email": "rajesh.kumar@globalinfra.com",
+      "phone": "+91-22-1234-5678"
+    },
+    "secondary": {
+      "name": "Priya Sharma",
+      "title": "Materials Manager",
+      "email": "priya.sharma@globalinfra.com",
+      "phone": "+91-22-1234-5679"
+    }
+  },
   "projects": [
     {
-      "id": "PWR-1",
-      "name": "Maharashtra Power Plant Phase 2",
-      "location": "Maharashtra",
+      "id": "proj-highway-001",
+      "name": "Mumbai-Pune Expressway Extension",
+      "type": "Highway Construction",
       "status": "active",
+      "start_date": "2024-06-01",
+      "expected_completion": "2026-12-31",
+      "budget_usd": 450000000,
+      "location": {
+        "country": "India",
+        "state": "Maharashtra",
+        "cities": ["Mumbai", "Pune"]
+      },
+      "completion_percentage": 35,
       "materials": [
         {
           "name": "Steel",
-          "category": "Metals",
-          "current_month_usage": 500,
-          "unit": "tons"
+          "category": "Construction Metal",
+          "specification": "TMT Bars Fe 500D",
+          "unit": "MT",
+          "current_month_usage": 2500,
+          "average_monthly_usage": 2200,
+          "total_required": 55000,
+          "consumed_to_date": 19250,
+          "remaining": 35750,
+          "critical": true,
+          "lead_time_days": 21,
+          "preferred_suppliers": ["Tata Steel", "JSW Steel", "SAIL"],
+          "current_price_per_unit": 620,
+          "budget_price_per_unit": 580
         },
         {
           "name": "Concrete",
-          "category": "Construction Materials",
-          "current_month_usage": 800,
-          "unit": "cubic meters"
-        },
-        {
-          "name": "Copper",
-          "category": "Metals",
-          "current_month_usage": 120,
-          "unit": "tons"
-        }
-      ]
-    },
-    {
-      "id": "HWY-3",
-      "name": "Gujarat Highway Expansion",
-      "location": "Gujarat",
-      "status": "active",
-      "materials": [
-        {
-          "name": "Concrete",
-          "category": "Construction Materials",
-          "current_month_usage": 1200,
-          "unit": "cubic meters"
-        },
-        {
-          "name": "Steel",
-          "category": "Metals",
-          "current_month_usage": 300,
-          "unit": "tons"
+          "category": "Construction Material",
+          "specification": "M40 Grade Ready Mix",
+          "unit": "Cubic Meter",
+          "current_month_usage": 8500,
+          "average_monthly_usage": 7800,
+          "total_required": 195000,
+          "consumed_to_date": 68250,
+          "remaining": 126750,
+          "critical": false,
+          "lead_time_days": 3,
+          "preferred_suppliers": ["UltraTech", "ACC Limited", "Ambuja Cement"],
+          "current_price_per_unit": 145,
+          "budget_price_per_unit": 138
         },
         {
           "name": "Asphalt",
-          "category": "Road Materials",
-          "current_month_usage": 450,
-          "unit": "tons"
+          "category": "Road Material",
+          "specification": "Bitumen Grade VG-30",
+          "unit": "MT",
+          "current_month_usage": 1800,
+          "average_monthly_usage": 1600,
+          "total_required": 42000,
+          "consumed_to_date": 14700,
+          "remaining": 27300,
+          "critical": true,
+          "lead_time_days": 14,
+          "preferred_suppliers": ["Indian Oil", "Reliance Industries", "BPCL"],
+          "current_price_per_unit": 485,
+          "budget_price_per_unit": 460
+        },
+        {
+          "name": "Copper",
+          "category": "Electrical Material",
+          "specification": "Copper Cable 240 sq mm",
+          "unit": "KM",
+          "current_month_usage": 45,
+          "average_monthly_usage": 38,
+          "total_required": 950,
+          "consumed_to_date": 332,
+          "remaining": 618,
+          "critical": false,
+          "lead_time_days": 28,
+          "preferred_suppliers": ["Hindalco", "Sterlite Copper", "KEI Industries"],
+          "current_price_per_unit": 8500,
+          "budget_price_per_unit": 7800
         }
       ]
     },
     {
-      "id": "BRG-5",
-      "name": "Karnataka Bridge Construction",
-      "location": "Karnataka",
-      "status": "planning",
+      "id": "proj-bridge-002",
+      "name": "Ganga River Bridge Project",
+      "type": "Bridge Construction",
+      "status": "active",
+      "start_date": "2024-09-01",
+      "expected_completion": "2027-06-30",
+      "budget_usd": 320000000,
+      "location": {
+        "country": "India",
+        "state": "Bihar",
+        "cities": ["Patna"]
+      },
+      "completion_percentage": 18,
       "materials": [
         {
           "name": "Steel",
-          "category": "Metals",
-          "current_month_usage": 650,
-          "unit": "tons"
+          "category": "Construction Metal",
+          "specification": "Structural Steel Grade A572",
+          "unit": "MT",
+          "current_month_usage": 1800,
+          "average_monthly_usage": 1500,
+          "total_required": 48000,
+          "consumed_to_date": 8640,
+          "remaining": 39360,
+          "critical": true,
+          "lead_time_days": 21,
+          "preferred_suppliers": ["Tata Steel", "JSW Steel"],
+          "current_price_per_unit": 650,
+          "budget_price_per_unit": 600
         },
         {
           "name": "Concrete",
-          "category": "Construction Materials",
-          "current_month_usage": 900,
-          "unit": "cubic meters"
+          "category": "Construction Material",
+          "specification": "M50 High Performance Concrete",
+          "unit": "Cubic Meter",
+          "current_month_usage": 3200,
+          "average_monthly_usage": 2800,
+          "total_required": 96000,
+          "consumed_to_date": 17280,
+          "remaining": 78720,
+          "critical": true,
+          "lead_time_days": 5,
+          "preferred_suppliers": ["UltraTech", "ACC Limited"],
+          "current_price_per_unit": 165,
+          "budget_price_per_unit": 155
+        },
+        {
+          "name": "Aluminum",
+          "category": "Construction Metal",
+          "specification": "Aluminum Alloy 6061-T6",
+          "unit": "MT",
+          "current_month_usage": 120,
+          "average_monthly_usage": 95,
+          "total_required": 3200,
+          "consumed_to_date": 576,
+          "remaining": 2624,
+          "critical": false,
+          "lead_time_days": 35,
+          "preferred_suppliers": ["Hindalco", "Vedanta Aluminium"],
+          "current_price_per_unit": 2850,
+          "budget_price_per_unit": 2650
+        }
+      ]
+    },
+    {
+      "id": "proj-power-003",
+      "name": "Chennai Smart Grid Upgrade",
+      "type": "Power Transmission",
+      "status": "active",
+      "start_date": "2025-01-15",
+      "expected_completion": "2026-09-30",
+      "budget_usd": 180000000,
+      "location": {
+        "country": "India",
+        "state": "Tamil Nadu",
+        "cities": ["Chennai", "Kanchipuram"]
+      },
+      "completion_percentage": 8,
+      "materials": [
+        {
+          "name": "Copper",
+          "category": "Electrical Material",
+          "specification": "High Voltage Copper Conductor",
+          "unit": "MT",
+          "current_month_usage": 280,
+          "average_monthly_usage": 220,
+          "total_required": 4800,
+          "consumed_to_date": 384,
+          "remaining": 4416,
+          "critical": true,
+          "lead_time_days": 42,
+          "preferred_suppliers": ["Sterlite Copper", "Hindalco", "KEI Industries"],
+          "current_price_per_unit": 9200,
+          "budget_price_per_unit": 8400
+        },
+        {
+          "name": "Aluminum",
+          "category": "Electrical Material",
+          "specification": "ACSR Conductor",
+          "unit": "MT",
+          "current_month_usage": 380,
+          "average_monthly_usage": 320,
+          "total_required": 6500,
+          "consumed_to_date": 520,
+          "remaining": 5980,
+          "critical": true,
+          "lead_time_days": 28,
+          "preferred_suppliers": ["Hindalco", "Vedanta", "Sterlite Power"],
+          "current_price_per_unit": 2950,
+          "budget_price_per_unit": 2700
+        },
+        {
+          "name": "Steel",
+          "category": "Construction Metal",
+          "specification": "Transmission Tower Steel",
+          "unit": "MT",
+          "current_month_usage": 650,
+          "average_monthly_usage": 550,
+          "total_required": 12000,
+          "consumed_to_date": 960,
+          "remaining": 11040,
+          "critical": false,
+          "lead_time_days": 21,
+          "preferred_suppliers": ["Tata Steel", "JSW Steel"],
+          "current_price_per_unit": 625,
+          "budget_price_per_unit": 590
+        }
+      ]
+    },
+    {
+      "id": "proj-metro-004",
+      "name": "Bangalore Metro Phase 3",
+      "type": "Metro Rail Construction",
+      "status": "active",
+      "start_date": "2024-03-01",
+      "expected_completion": "2027-12-31",
+      "budget_usd": 680000000,
+      "location": {
+        "country": "India",
+        "state": "Karnataka",
+        "cities": ["Bangalore"]
+      },
+      "completion_percentage": 42,
+      "materials": [
+        {
+          "name": "Steel",
+          "category": "Construction Metal",
+          "specification": "High Tensile Steel Rails",
+          "unit": "MT",
+          "current_month_usage": 3200,
+          "average_monthly_usage": 2900,
+          "total_required": 112000,
+          "consumed_to_date": 47040,
+          "remaining": 64960,
+          "critical": true,
+          "lead_time_days": 35,
+          "preferred_suppliers": ["SAIL", "Tata Steel", "JSW Steel"],
+          "current_price_per_unit": 720,
+          "budget_price_per_unit": 680
+        },
+        {
+          "name": "Concrete",
+          "category": "Construction Material",
+          "specification": "M45 Grade for Tunnels",
+          "unit": "Cubic Meter",
+          "current_month_usage": 12000,
+          "average_monthly_usage": 10500,
+          "total_required": 420000,
+          "consumed_to_date": 176400,
+          "remaining": 243600,
+          "critical": true,
+          "lead_time_days": 3,
+          "preferred_suppliers": ["UltraTech", "ACC Limited", "Ambuja Cement"],
+          "current_price_per_unit": 155,
+          "budget_price_per_unit": 145
+        },
+        {
+          "name": "Copper",
+          "category": "Electrical Material",
+          "specification": "Third Rail Copper Conductor",
+          "unit": "KM",
+          "current_month_usage": 85,
+          "average_monthly_usage": 72,
+          "total_required": 2800,
+          "consumed_to_date": 1176,
+          "remaining": 1624,
+          "critical": false,
+          "lead_time_days": 42,
+          "preferred_suppliers": ["Hindalco", "Sterlite Copper"],
+          "current_price_per_unit": 9500,
+          "budget_price_per_unit": 8700
         }
       ]
     }
-  ]
+  ],
+  "supply_chain_metrics": {
+    "on_time_delivery_rate": 0.87,
+    "average_lead_time_days": 24,
+    "supplier_count": 42,
+    "critical_material_buffer_days": 45,
+    "inventory_turnover_ratio": 6.2
+  },
+  "risk_factors": {
+    "monsoon_season_impact": "High - June to September affects concrete & asphalt delivery",
+    "geopolitical_concerns": "Medium - Global copper supply chain volatility",
+    "price_volatility": "High - Steel prices fluctuating due to international demand",
+    "logistics_challenges": "Medium - Last-mile delivery to remote sites"
+  }
 }
-

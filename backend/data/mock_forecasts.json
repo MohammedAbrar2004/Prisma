@@ -1,82 +1,346 @@
 {
-  "company_id": "abc-infra",
-  "forecast_date": "2025-11-07",
-  "horizon": "next_month",
-  "method": "rule_based_mvp",
+  "company_id": "global-infrastructure-corp",
+  "forecast_date": "2025-11-08",
+  "forecast_horizon": "next_quarter",
+  "method": "hybrid_ml_model",
+  "model_version": "v2.3.1",
+  "confidence_level": 0.82,
   "forecasts": [
     {
-      "project_id": "PWR-1",
+      "project_id": "proj-highway-001",
+      "project_name": "Mumbai-Pune Expressway Extension",
       "material": "Steel",
-      "current_usage": 500,
-      "predicted_demand": 550,
-      "unit": "tons",
-      "confidence": 0.75,
-      "month": "2025-12"
+      "current_usage": 2500,
+      "predicted_demand": 2875,
+      "unit": "MT",
+      "confidence": 0.85,
+      "month": "2025-12",
+      "trend": "increasing",
+      "growth_rate": 0.15,
+      "seasonal_factor": 1.08,
+      "drivers": [
+        "Project entering critical phase - bridge construction",
+        "Weather conditions favorable for next 3 months",
+        "Increased activity to meet Q1 2026 milestones"
+      ],
+      "risk_score": 0.42,
+      "recommended_buffer": 575
     },
     {
-      "project_id": "PWR-1",
+      "project_id": "proj-highway-001",
+      "project_name": "Mumbai-Pune Expressway Extension",
       "material": "Concrete",
-      "current_usage": 800,
-      "predicted_demand": 880,
-      "unit": "cubic meters",
-      "confidence": 0.78,
-      "month": "2025-12"
+      "current_usage": 8500,
+      "predicted_demand": 9350,
+      "unit": "Cubic Meter",
+      "confidence": 0.88,
+      "month": "2025-12",
+      "trend": "increasing",
+      "growth_rate": 0.10,
+      "seasonal_factor": 1.05,
+      "drivers": [
+        "Road surfacing phase beginning",
+        "Post-monsoon optimal curing conditions",
+        "Multiple sections reaching completion stage"
+      ],
+      "risk_score": 0.28,
+      "recommended_buffer": 935
     },
     {
-      "project_id": "PWR-1",
-      "material": "Copper",
-      "current_usage": 120,
-      "predicted_demand": 132,
-      "unit": "tons",
-      "confidence": 0.72,
-      "month": "2025-12"
-    },
-    {
-      "project_id": "HWY-3",
-      "material": "Concrete",
-      "current_usage": 1200,
-      "predicted_demand": 1320,
-      "unit": "cubic meters",
-      "confidence": 0.80,
-      "month": "2025-12"
-    },
-    {
-      "project_id": "HWY-3",
-      "material": "Steel",
-      "current_usage": 300,
-      "predicted_demand": 330,
-      "unit": "tons",
-      "confidence": 0.76,
-      "month": "2025-12"
-    },
-    {
-      "project_id": "HWY-3",
+      "project_id": "proj-highway-001",
+      "project_name": "Mumbai-Pune Expressway Extension",
       "material": "Asphalt",
-      "current_usage": 450,
-      "predicted_demand": 495,
-      "unit": "tons",
-      "confidence": 0.82,
-      "month": "2025-12"
+      "current_usage": 1800,
+      "predicted_demand": 2340,
+      "unit": "MT",
+      "confidence": 0.79,
+      "month": "2025-12",
+      "trend": "increasing",
+      "growth_rate": 0.30,
+      "seasonal_factor": 1.15,
+      "drivers": [
+        "Final surfacing phase scheduled to begin",
+        "Optimal temperature conditions for asphalt laying",
+        "Accelerated schedule to avoid monsoon delays"
+      ],
+      "risk_score": 0.55,
+      "recommended_buffer": 468
     },
     {
-      "project_id": "BRG-5",
+      "project_id": "proj-highway-001",
+      "project_name": "Mumbai-Pune Expressway Extension",
+      "material": "Copper",
+      "current_usage": 45,
+      "predicted_demand": 52,
+      "unit": "KM",
+      "confidence": 0.76,
+      "month": "2025-12",
+      "trend": "stable",
+      "growth_rate": 0.16,
+      "seasonal_factor": 1.02,
+      "drivers": [
+        "Street lighting installation phase beginning",
+        "Electrical infrastructure rollout scheduled"
+      ],
+      "risk_score": 0.38,
+      "recommended_buffer": 10
+    },
+    {
+      "project_id": "proj-bridge-002",
+      "project_name": "Ganga River Bridge Project",
+      "material": "Steel",
+      "current_usage": 1800,
+      "predicted_demand": 2340,
+      "unit": "MT",
+      "confidence": 0.83,
+      "month": "2025-12",
+      "trend": "increasing",
+      "growth_rate": 0.30,
+      "seasonal_factor": 1.12,
+      "drivers": [
+        "Main span construction entering peak phase",
+        "Foundation work accelerating",
+        "Additional structural reinforcement requirements identified"
+      ],
+      "risk_score": 0.48,
+      "recommended_buffer": 468
+    },
+    {
+      "project_id": "proj-bridge-002",
+      "project_name": "Ganga River Bridge Project",
+      "material": "Concrete",
+      "current_usage": 3200,
+      "predicted_demand": 4160,
+      "unit": "Cubic Meter",
+      "confidence": 0.87,
+      "month": "2025-12",
+      "trend": "increasing",
+      "growth_rate": 0.30,
+      "seasonal_factor": 1.10,
+      "drivers": [
+        "Pier construction in full swing",
+        "Foundation completion requiring high-volume pours",
+        "Weather window optimal for concrete work"
+      ],
+      "risk_score": 0.35,
+      "recommended_buffer": 832
+    },
+    {
+      "project_id": "proj-bridge-002",
+      "project_name": "Ganga River Bridge Project",
+      "material": "Aluminum",
+      "current_usage": 120,
+      "predicted_demand": 138,
+      "unit": "MT",
+      "confidence": 0.72,
+      "month": "2025-12",
+      "trend": "increasing",
+      "growth_rate": 0.15,
+      "seasonal_factor": 1.03,
+      "drivers": [
+        "Railing and safety barrier installation starting",
+        "Architectural elements requiring aluminum components"
+      ],
+      "risk_score": 0.41,
+      "recommended_buffer": 28
+    },
+    {
+      "project_id": "proj-power-003",
+      "project_name": "Chennai Smart Grid Upgrade",
+      "material": "Copper",
+      "current_usage": 280,
+      "predicted_demand": 364,
+      "unit": "MT",
+      "confidence": 0.81,
+      "month": "2025-12",
+      "trend": "increasing",
+      "growth_rate": 0.30,
+      "seasonal_factor": 1.10,
+      "drivers": [
+        "Underground cable laying accelerating",
+        "Substation upgrades requiring heavy copper usage",
+        "Smart meter installation phase beginning",
+        "Global copper demand driving urgency"
+      ],
+      "risk_score": 0.62,
+      "recommended_buffer": 73
+    },
+    {
+      "project_id": "proj-power-003",
+      "project_name": "Chennai Smart Grid Upgrade",
+      "material": "Aluminum",
+      "current_usage": 380,
+      "predicted_demand": 456,
+      "unit": "MT",
+      "confidence": 0.84,
+      "month": "2025-12",
+      "trend": "increasing",
+      "growth_rate": 0.20,
+      "seasonal_factor": 1.08,
+      "drivers": [
+        "Overhead transmission line installation ramping up",
+        "Cost optimization favoring aluminum over copper where possible",
+        "Longer transmission routes requiring ACSR conductors"
+      ],
+      "risk_score": 0.44,
+      "recommended_buffer": 91
+    },
+    {
+      "project_id": "proj-power-003",
+      "project_name": "Chennai Smart Grid Upgrade",
       "material": "Steel",
       "current_usage": 650,
       "predicted_demand": 715,
-      "unit": "tons",
-      "confidence": 0.68,
-      "month": "2025-12"
+      "unit": "MT",
+      "confidence": 0.86,
+      "month": "2025-12",
+      "trend": "increasing",
+      "growth_rate": 0.10,
+      "seasonal_factor": 1.05,
+      "drivers": [
+        "Transmission tower fabrication and installation ongoing",
+        "Substation structural work continuing"
+      ],
+      "risk_score": 0.32,
+      "recommended_buffer": 143
     },
     {
-      "project_id": "BRG-5",
+      "project_id": "proj-metro-004",
+      "project_name": "Bangalore Metro Phase 3",
+      "material": "Steel",
+      "current_usage": 3200,
+      "predicted_demand": 3520,
+      "unit": "MT",
+      "confidence": 0.89,
+      "month": "2025-12",
+      "trend": "increasing",
+      "growth_rate": 0.10,
+      "seasonal_factor": 1.06,
+      "drivers": [
+        "Tunnel boring machine progress steady",
+        "Rail track laying continuing as per schedule",
+        "Station structure work in multiple locations"
+      ],
+      "risk_score": 0.25,
+      "recommended_buffer": 704
+    },
+    {
+      "project_id": "proj-metro-004",
+      "project_name": "Bangalore Metro Phase 3",
       "material": "Concrete",
-      "current_usage": 900,
-      "predicted_demand": 990,
-      "unit": "cubic meters",
-      "confidence": 0.70,
-      "month": "2025-12"
+      "current_usage": 12000,
+      "predicted_demand": 13200,
+      "unit": "Cubic Meter",
+      "confidence": 0.91,
+      "month": "2025-12",
+      "trend": "increasing",
+      "growth_rate": 0.10,
+      "seasonal_factor": 1.05,
+      "drivers": [
+        "Tunnel lining work accelerating",
+        "Station platform construction in progress",
+        "Support structure requirements steady"
+      ],
+      "risk_score": 0.22,
+      "recommended_buffer": 1320
+    },
+    {
+      "project_id": "proj-metro-004",
+      "project_name": "Bangalore Metro Phase 3",
+      "material": "Copper",
+      "current_usage": 85,
+      "predicted_demand": 102,
+      "unit": "KM",
+      "confidence": 0.78,
+      "month": "2025-12",
+      "trend": "increasing",
+      "growth_rate": 0.20,
+      "seasonal_factor": 1.08,
+      "drivers": [
+        "Third rail installation beginning in completed sections",
+        "Station electrical systems installation",
+        "Signaling system cabling requirements"
+      ],
+      "risk_score": 0.51,
+      "recommended_buffer": 20
     }
   ],
-  "notes": "MVP phase: Simple 10% growth rule applied. ML models to be integrated in production."
+  "aggregate_summary": {
+    "total_materials_tracked": 6,
+    "materials": {
+      "Steel": {
+        "total_current_usage": 8150,
+        "total_predicted_demand": 9450,
+        "total_growth_rate": 0.16,
+        "average_confidence": 0.86,
+        "projects_using": 4,
+        "risk_level": "medium",
+        "recommendation": "Increase procurement by 20% to meet accelerating demand across all projects"
+      },
+      "Concrete": {
+        "total_current_usage": 23700,
+        "total_predicted_demand": 26710,
+        "total_growth_rate": 0.13,
+        "average_confidence": 0.89,
+        "projects_using": 3,
+        "risk_level": "low",
+        "recommendation": "Stable supply chain, maintain current procurement pace with seasonal adjustments"
+      },
+      "Copper": {
+        "total_current_usage": 410,
+        "total_predicted_demand": 518,
+        "total_growth_rate": 0.26,
+        "average_confidence": 0.79,
+        "projects_using": 3,
+        "risk_level": "high",
+        "recommendation": "URGENT: Secure additional suppliers, copper demand surging 26% - consider forward contracts"
+      },
+      "Aluminum": {
+        "total_current_usage": 500,
+        "total_predicted_demand": 594,
+        "total_growth_rate": 0.19,
+        "average_confidence": 0.78,
+        "projects_using": 2,
+        "risk_level": "medium",
+        "recommendation": "Moderate increase needed, consider bulk orders to leverage economies of scale"
+      },
+      "Asphalt": {
+        "total_current_usage": 1800,
+        "total_predicted_demand": 2340,
+        "total_growth_rate": 0.30,
+        "average_confidence": 0.79,
+        "projects_using": 1,
+        "risk_level": "high",
+        "recommendation": "Significant surge expected due to surfacing phase, secure storage and transportation now"
+      }
+    }
+  },
+  "external_factors": {
+    "market_conditions": {
+      "steel": "Global demand high due to infrastructure boom in Asia-Pacific",
+      "copper": "Supply constraints due to mining disruptions in South America",
+      "aluminum": "Moderate demand, stable pricing expected",
+      "concrete": "Local supply adequate, monsoon season considerations apply",
+      "asphalt": "Crude oil prices affecting bitumen costs, trending upward"
+    },
+    "seasonal_considerations": {
+      "current_season": "Post-monsoon optimal construction period",
+      "upcoming_risks": "Summer heat may affect concrete work by March-April",
+      "optimal_procurement_window": "Next 90 days before price increases"
+    }
+  },
+  "recommendations": {
+    "immediate_actions": [
+      "Increase copper procurement by 30% immediately - highest risk material",
+      "Secure asphalt storage facilities ahead of highway surfacing phase",
+      "Negotiate long-term contracts for steel to lock in current prices",
+      "Review aluminum supplier capacity for bridge project acceleration"
+    ],
+    "strategic_initiatives": [
+      "Diversify copper suppliers to reduce supply chain risk",
+      "Establish regional concrete batching plants near project sites",
+      "Implement just-in-time delivery for high-volume materials like concrete",
+      "Consider alternative materials where specifications allow (aluminum vs copper)"
+    ]
+  }
 }
-

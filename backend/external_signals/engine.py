@@ -180,6 +180,38 @@ def get_mock_signals(company_id: str) -> dict:
             ],
             last_updated=datetime.now()
         ),
+        DemandSignal(
+            company_id=company_id,
+            region="Karnataka",
+            material="Aluminum",
+            material_category="Metals",
+            horizon="next_month",
+            demand_direction=DemandDirection.INCREASE.value,
+            demand_score=0.58,
+            confidence=0.75,
+            drivers=[
+                "Aluminum prices trending upward by 3.8% this quarter",
+                "Strong demand from automotive and construction sectors",
+                "Global supply tightening due to energy costs"
+            ],
+            last_updated=datetime.now()
+        ),
+        DemandSignal(
+            company_id=company_id,
+            region="Maharashtra",
+            material="Asphalt",
+            material_category="Road Materials",
+            horizon="next_month",
+            demand_direction=DemandDirection.INCREASE.value,
+            demand_score=0.73,
+            confidence=0.80,
+            drivers=[
+                "Bitumen prices increased 7.2% due to crude oil trends",
+                "Highway surfacing season approaching",
+                "Government road infrastructure push increasing demand"
+            ],
+            last_updated=datetime.now()
+        ),
     ]
     
     return {
@@ -589,11 +621,15 @@ def build_signals(
     
     # Always start with mock signals (baseline)
     mock_data = get_mock_signals(company_id)
-    all_signals.extend([
-        DemandSignal(**{**s, 'company_id': company_id}) 
-        for s in mock_data["signals"]
-        if not region or s.get("region") == region
-    ])
+    for signal_dict in mock_data["signals"]:
+        # Recreate DemandSignal from dict
+        try:
+            signal = DemandSignal(**signal_dict)
+            signal.company_id = company_id
+            signal.horizon = horizon
+            all_signals.append(signal)
+        except Exception as e:
+            print(f"Warning: Could not parse mock signal: {e}")
     
     # If real APIs enabled and configured, fetch additional signals
     if use_real_apis:
